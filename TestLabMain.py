@@ -9,9 +9,6 @@ import Util as util
 TAG = "TestLabMain"
 
 
-
-
-
 # 변수 선언
 global root
 root = Tk()
@@ -20,28 +17,20 @@ name = ""
 global text
 text = Text(root, wrap=WORD)
 global btn
-btn = Button(root,text="검색")
+
 global kkma
 kkma = Kkma()
 global scoreTable
-
-
-#시간
-#장소
-#이름
 
 rows = 100
 cols = 3
 scoreTable = [[0 for j in range(cols)] for i in range(rows)]
 
-
 currentLine = 0;
 
 def main():
-
     loadUI()
-
-    return 0
+    pass
 
 def loadUI():
     root.title("Test Lab")
@@ -50,34 +39,33 @@ def loadUI():
     text.place(x= 50,y=50,height=100,width=400)
     text.pack()
 
-    btn.config(command = analyze)
+    btn = Button(root,text="검색",command = lambda :analyze(text))
+
+
     btn.place(x= 200,y=200,height=10,width=50)
     btn.pack()
 
     root.mainloop()
+    pass
 
+def analyze(data):
 
-def analyze():
-    line_count = count_lines(text) # 라인 수를 셉니다.
-
-    for i in range(1,line_count+1): # 라인별로 반복합니다.
-
+    for i in range(1, getLineCount(data) + 1): # 라인별로 반복합니다.
         currentLine = i # 현재 라인을 전역변수에 저장
+        lineData = get_line(text, i) # 각 라인의 텍스트 데이터를 얻습니다.
 
-        data = get_line(text,i) # 각 라인의 텍스트 데이터를 얻습니다.
+        nounList = getNounList(lineData) # 각 라인의 명사 리스트를 얻습니다. (Use KoNlPy)
+        for j in nounList: # 명사를 리스트를 반복합니다.
+            scarchResult = dicapi.search(j) # 명사 검색시작
 
-        spp = split(data) # 각 라인의 명사 리스트를 얻습니다. (Use KonlPy)
-        for j in spp: # 명사를 리스트를 반복합니다.
-            dd = dicapi.search(j) # 명사 검색시작
-
-            if(dd != -1):
+            if(scarchResult != -1):
                 Util.Log(TAG,"-------------------")
 
                 Util.Log(TAG,"라인 수 : "+str(currentLine))
-                Util.Log(TAG,"검색한 단어 : "+dd[0])
-                Util.Log(TAG,"단어의 뜻 : "+dd[1])
+                Util.Log(TAG,"검색한 단어 : " + scarchResult.word)
+                Util.Log(TAG,"단어의 뜻 : " + scarchResult.definition)
                 Util.Log(TAG,"-------------------")
-                scoring(currentLine,dd)
+                scoring(currentLine, scarchResult)
 
 
             else:
@@ -87,6 +75,7 @@ def analyze():
     for i in range(0,currentLine):
         print("LineCount : ",i,scoreTable[i]," || ",get_line(text,i))
 
+    index = 0
     max_place_score = 0
     for i in range(0, currentLine):
         if max_place_score < scoreTable[i][0]:
@@ -94,10 +83,13 @@ def analyze():
             index = i
 
 
+
     print("장소 | 최고점 : %d" %max_place_score,end = '')
     print(" | index : %d" %index,end = '')
     print(" | 데이터 : ", get_line(text,index))
 
+
+    index_1 = 0
     max_place_score_1 = 0
     for i in range(0, currentLine):
         if max_place_score_1 < scoreTable[i][1]:
@@ -110,6 +102,7 @@ def analyze():
     print(" | 데이터 : ", get_line(text,index_1))
 
 
+    index_2 = 0
     max_place_score_2 = 0
     for i in range(0, currentLine):
         if max_place_score_2 < scoreTable[i][2]:
@@ -138,29 +131,29 @@ def scoring(line,data):
     # 장소 판별
 
     for i in placeKey:
-        if data[0].find(i) != -1:
+        if data.word.find(i) != -1:
             scoreTable[line][0] +=1
 
-        if data[1].find(i) != -1:
+        if data.definition.find(i) != -1:
             scoreTable[line][0] +=1
 
     for i in timeKey:
-        if data[0].find(i) != -1:
+        if data.word.find(i) != -1:
             scoreTable[line][1] +=1
 
-        if data[1].find(i) != -1:
+        if data.definition.find(i) != -1:
             scoreTable[line][1] +=1
 
     for i in nameKey:
-        if data[0].find(i) != -1:
+        if data.word.find(i) != -1:
             scoreTable[line][2] +=1
 
-        if data[1].find(i) != -1:
+        if data.definition.find(i) != -1:
             scoreTable[line][2] +=1
 
     return 0
 
-def count_lines(text):
+def getLineCount(text):
     return int(text.index(END).split(".")[0])-1
 
 def get_line(text,line_number):
@@ -169,7 +162,7 @@ def get_line(text,line_number):
     line_content = text.get(line_start, line_end)
     return line_content
 
-def split(data):
+def getNounList(data):
     return kkma.nouns(data)
 
 
