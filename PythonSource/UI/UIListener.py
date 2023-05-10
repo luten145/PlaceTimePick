@@ -1,6 +1,8 @@
 from tkinter import *
 class FrameworkListener:
-    def onAnalyzeEvent(self,text : Text) -> bool:
+    def onTkinterEvent(self, text : Text) -> bool:
+        pass
+    def onJsonOpenEvent(self) -> bool:
         pass
 
 class UIEventListener:

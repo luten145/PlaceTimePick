@@ -1,30 +1,41 @@
 from tkinter import *
 from PythonSource.UI.UIListener import FrameworkListener
+from PythonSource.UI.UIListener import UIEventListener
 from PythonSource.Util import LogUtil as logUtil
 
+TAG = "UIMain"
 
 class UIManager:
 
     TAG = "UIManager"
+
     def __init__(self, listener_sample: FrameworkListener):
-        self.uiInit()
         self.listener_sample = listener_sample
+        self.uiInit()
 
 
-    def ff(self):
-        self.lis.hello(5,"eke")
-        LogUtil.Log("dlld", "ekeddd")
-        pass
+    class ListenerSampleImpl(UIEventListener):
+        def onSetDataEvent(self,index : int,text : str) -> bool:
+            logUtil.Log(TAG, "Index : " + str(index) + " | Data : " + text)
+            return False
+
+
+    def getDataEventListener(self):
+        return self.ListenerSampleImpl()
+
 
     def uiInit(self):
         self.root = Tk()
         self.root.title("Test Lab")
         self.root.geometry("500x700")
 
-        self.btn = Button(self.root, text="검색",command= lambda :self.listener_sample.onAnalyzeEvent(self.text))
-
+        self.btn = Button(self.root, text="검색", command= lambda :self.listener_sample.onTkinterEvent(self.text))
         self.btn.place(x= 200,y=200,height=10,width=50)
         self.btn.pack()
+
+        self.btn2 = Button(self.root, text="파일 열기", command= lambda :self.listener_sample.onJsonOpenEvent())
+        self.btn2.place(x= 220,y=220,height=10,width=50)
+        self.btn2.pack()
 
         self.text = Text(self.root, wrap=WORD)
         self.text.place(x= 50,y=50,height=100,width=400)
@@ -55,10 +66,5 @@ class UIManager:
             for j in range(6):
                 textlist[count].grid(row=i, column=j, ipadx=10, ipady=10)
                 count += 1
-
-
-    def onSetDataEvent(self,index, data): #여기서 UI 이벤트를 받습니다.
-        logUtil.Log(self.TAG, "Index : " + str(index) + " | Data : " + data)
-        pass
 
 pass
