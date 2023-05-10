@@ -8,7 +8,6 @@ from PythonSource.UI.UIListener import UIEventListener
 TAG = "Engine"
 
 
-
 class MainEngine:
 
     def __init__(self,uiManager:UIEventListener):
@@ -114,9 +113,6 @@ class Engine1:
     def getNounList(self,data):
         return self.kkma.nouns(data)
     pass
-
-
-
 
 
 class Engine2:

@@ -8,8 +8,7 @@ TAG = "TestLabMain"
 jsonManager = jsonUtil.JsonManager()
 
 
-
-class ListenerSampleImpl(FrameworkListener):
+class UIListener(FrameworkListener):
     def onTkinterEvent(self, text) -> bool:
         mainEngine.tkinterHandler(text)
         return False
@@ -18,7 +17,7 @@ class ListenerSampleImpl(FrameworkListener):
         mainEngine.jsonHandler(data)
         return False
 
-uiManager = ui.UIManager(ListenerSampleImpl())
+uiManager = ui.UIManager(UIListener())
 mainEngine = engineManager.MainEngine(uiManager.getDataEventListener())
 
 def main():
