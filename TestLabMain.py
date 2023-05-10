@@ -12,8 +12,63 @@ MAX_LINE = 100
 MAX_SCORE_TYPE = 3
 scoreTable = [[0 for j in range(MAX_SCORE_TYPE)] for i in range(MAX_LINE)]
 
+
+
 def main():
     uiInit()
+
+
+
+root = Tk()
+
+frame1 = Frame(root, relief='solid', bd=2)
+frame1.pack(side='top', fill="both", expand=FALSE)
+
+frame2 = Frame(root, relief='solid', bd=2)
+frame2.pack(side='bottom', fill='both', expand=True, padx= 50, pady=50)
+
+text = Text(frame1, wrap=WORD)
+
+btn = Button(frame1,text="검색")
+
+textlist = []
+
+for i in range(18):
+    textlist.append(Label(frame2))
+
+
+textlist[0].config(text='시ㆍ도')
+textlist[2].config(text='군ㆍ구')
+textlist[4].config(text='읍ㆍ면ㆍ동')
+textlist[6].config(text='도로명')
+textlist[8].config(text='건물번호')
+textlist[10].config(text='동ㆍ층ㆍ호')
+textlist[12].config(text='추가정보')
+
+
+count = 0
+for i in range(3):
+    for j in range(6):
+        textlist[count].grid(row=i, column=j, ipadx=10, ipady=10)
+
+        count += 1
+
+
+
+def loadUI():
+    root.title("Test Lab")
+    root.geometry("500x700")
+
+    text.place(x= 50,y=50,height=100,width=400)
+    text.pack()
+
+    btn.config(command = analyze)
+    btn.place(x= 200,y=200,height=10,width=50)
+    btn.pack()
+
+    root.mainloop()
+
+def setData(index, data):
     pass
 
 def uiInit():
@@ -104,6 +159,8 @@ def getLine(text, line_number):
 
 def getNounList(data):
     return kkma.nouns(data)
+
+# 변수 선언
 
 
 main()

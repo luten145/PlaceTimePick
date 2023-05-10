@@ -1,6 +1,15 @@
 from tkinter import *
 
 
+class ListenerSample:
+    def hello(self, data: int, data22: str) -> bool:
+        pass
+
+class Hellooo:
+    def __init__(self, listener_sample: ListenerSample):
+        self.listener_sample = listener_sample
+        self.listener_sample.hello(5, "fdsfsd")
+
 class UIManager:
 
     global root
