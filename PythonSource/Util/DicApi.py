@@ -1,5 +1,5 @@
 import requests
-import Util as util
+import PythonSource.Util.LogUtil as util
 
 TAG = "DicApi"
 
