@@ -27,7 +27,7 @@ class MainEngine:
 
 class Engine1:
     def __init__(self,uiManager : UIEventListener):
-
+        print("Git Update Test")
         self.mUIManager = uiManager
 
         self.PLACE_INDEX = 0
@@ -118,6 +118,7 @@ class Engine1:
 class Engine2:
     def __init__(self,uiManager : UIEventListener):
         self.mUIManager = uiManager
+        prin
         pass
 
     def jsonHandler(self,data):
