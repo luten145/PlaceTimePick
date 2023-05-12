@@ -28,6 +28,7 @@ class MainEngine:
 class Engine1:
     def __init__(self,uiManager : UIEventListener):
         print("Git Update Test")
+        print("Git Update Test2")
         self.mUIManager = uiManager
 
         self.PLACE_INDEX = 0
