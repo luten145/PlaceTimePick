@@ -119,7 +119,6 @@ class Engine1:
 class Engine2:
     def __init__(self,uiManager : UIEventListener):
         self.mUIManager = uiManager
-        prin
         pass
 
     def jsonHandler(self,data):
@@ -155,40 +154,45 @@ class Engine2:
                     break
 
         #초기화
-        year,month,day,week,hour,minute=0,0,0,0,0,0
+        year, month, day, week, hour, minute = 0, 0, 0, 0, 0, 0
 
-        # 년도 추출
-        year_str = re.search(r'\d+년', text_str)[0]
-        year = int(re.search(r'\d+', year_str)[0])
+        # 년월일 추출 - 2021년 10월 21일 or 2021.10.21 or 2021/10/21
+        ymdPattern = r'(\d{4})(?:년|\.|/)\s?(\d{1,2})(?:월|\.|/)\s?(\d{1,2})?일?'
+        ymdStr = re.search(ymdPattern, text_str)
+        if ymdStr:
+            ymdEndIndex = ymdStr.end()
+            ymdNextText = text_str[ymdEndIndex:]
+            year = ymdStr.group(1)
+            month = ymdStr.group(2)
+            day = ymdStr.group(3)
 
-        # 월 추출
-        month_str = re.search(r'\d+월', text_str)[0]
-        month = int(re.search(r'\d+', month_str)[0])
+        # 요일 추출 - 월요일 or (월) or 월
+        #weekPattern = r"(월요일|화요일|수요일|목요일|금요일|토요일|일요일|\((월|화|수|목|금|토|일)\)|월|화|수|목|금|토|일)"
+        weekPattern = r"\(?(월요일|화요일|수요일|목요일|금요일|토요일|일요일|월|화|수|목|금|토|일)\)?"
+        weekStr = re.search(weekPattern, ymdNextText)
+        if weekStr:
+            weekEndIndex = weekStr.end()
+            weekNextText = text_str[weekEndIndex:]
+            week = weekStr.group(1)[0]
 
-        # 일 추출
-        day_str = re.search(r'\d+일', text_str)[0]
-        day = int(re.search(r'\d+', day_str)[0])
+        # 시간 추출 - (오전 or 오후 or 낮) + 10시 20분 or 10:20
+        timePattern = r"(?:오후|오전|낮)?\s?(\d{1,2})(?::|시\s*)(\d{1,2})?(?:분)?"
+        timeStr = re.search(timePattern, weekNextText)
+        if timeStr:
+            hour = int(timeStr.group(1))
+            if '오후' in str(timeStr):
+                hour += 12
+            minute = int(timeStr.group(2) or 0)
 
-        # 요일 추출
-        week = re.search(r'\d+년 \d+월 \d+일 (일|월|화|수|목|금|토)요일 (?:오후|오전|낮)?\s?(\d{1,2})\s?[시:]\s?(\d{0,2})\s?(?:분)?', text_str)
-
-        # 시간 추출
-        time_matches = re.findall(r'(?:오후|오전|낮)?\s?(\d{1,2})\s?[시:]\s?(\d{0,2})\s?(?:분)?', text_str)[0]
-        hour = int(time_matches[0])
-        if '오후' in text_list:
-            hour += 12
-        minute = int(time_matches[1]) if time_matches[1] else 0
-
-
-
-        print(place_list)
+        print("장소: ", place_list)
         print(name_list)
         print("----------")
         print("년:", year, type(year))
         print("월:", month, type(month))
         print("일:", day, type(day))
         print("요일:", week, type(week))
-        print(hour,":",minute)
+        print("시: ", hour, type(hour))
+        print("분: ", minute, type(minute))
 
         pass
 
