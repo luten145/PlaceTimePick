@@ -4,6 +4,7 @@ from PythonSource.Util import LogUtil as logUtil
 import PythonSource.Util.DicApi as dicApi
 import re
 from PythonSource.UI.UIListener import UIEventListener
+from PythonSource.UI import UIMain
 
 TAG = "Engine"
 
@@ -197,6 +198,7 @@ class Engine2:
             minute = int(timeStr.group(2) or 0)
 
         #print("장소: ", place_list)
+
         print("지역: ", region, type(region))
         print("시/도: ", region0, type(region0))
         print("시/군/구: ", region1, type(region1))
@@ -211,6 +213,13 @@ class Engine2:
         print("요일:", week, type(week))
         print("시: ", hour, type(hour))
         print("분: ", minute, type(minute))
+
+        self.mUIManager.onSetDataEvent(UIMain.PLACE_SI,region0)
+        self.mUIManager.onSetDataEvent(UIMain.PLACE_GU,region1)
+        self.mUIManager.onSetDataEvent(UIMain.PLACE_DONG,region2)
+        self.mUIManager.onSetDataEvent(UIMain.PLACE_STREET,region3)
+
+
 
         pass
 

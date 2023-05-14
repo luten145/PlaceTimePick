@@ -10,13 +10,13 @@ globalText = ''
 
 TAG = "UIMain"
 
-PLACE_SI = 0
-PLACE_GU = 2
-PLACE_DONG = 4
-PLACE_STREET = 6
-PLACE_NUM = 8
-PLACE_HO = 10
-PLACE_ADD = 12
+PLACE_SI = 1
+PLACE_GU = 3
+PLACE_DONG = 5
+PLACE_STREET = 7
+PLACE_NUM = 9
+PLACE_HO = 11
+PLACE_ADD = 13
 
 class UIManager:
 
@@ -76,13 +76,13 @@ class UIManager:
             textlist.append(Label(frame2))
 
 
-        textlist[PLACE_SI].config(text='시ㆍ도')
-        textlist[PLACE_GU].config(text='군ㆍ구')
-        textlist[PLACE_DONG].config(text='읍ㆍ면ㆍ동')
-        textlist[PLACE_STREET].config(text='도로명')
-        textlist[PLACE_NUM].config(text='건물번호')
-        textlist[PLACE_HO].config(text='동ㆍ층ㆍ호')
-        textlist[PLACE_ADD].config(text='추가정보')
+        textlist[0].config(text='시ㆍ도')
+        textlist[2].config(text='군ㆍ구')
+        textlist[4].config(text='읍ㆍ면ㆍ동')
+        textlist[6].config(text='도로명')
+        textlist[8].config(text='건물번호')
+        textlist[10].config(text='동ㆍ층ㆍ호')
+        textlist[12].config(text='추가정보')
 
         count = 0
         for i in range(3):
