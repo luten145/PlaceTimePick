@@ -3,28 +3,53 @@ from PythonSource.UI.UIListener import FrameworkListener
 from PythonSource.UI.UIListener import UIEventListener
 from PythonSource.Util import LogUtil as logUtil
 
+
+textlist = []
+globalIndex = 0
+globalText = ''
+
 TAG = "UIMain"
 
-class UIManager:
+PLACE_SI = 0
+PLACE_GU = 2
+PLACE_DONG = 4
+PLACE_STREET = 6
+PLACE_NUM = 8
+PLACE_HO = 10
+PLACE_ADD = 12
 
-    TAG = "UIManager"
+class UIManager:
 
     def __init__(self, listener_sample: FrameworkListener):
         self.listener_sample = listener_sample
         self.uiInit()
 
 
+
+    TAG = "UIManager"
     class ListenerSampleImpl(UIEventListener):
         def onSetDataEvent(self,index : int,text : str) -> bool:
+            global globalIndex
+            global globalText
+
+            globalIndex = index
+            globalText = text
+            self.UIdEit.editLabel(self)
             logUtil.Log(TAG, "Index : " + str(index) + " | Data : " + text)
             return False
+        class UIdEit:
+            def editLabel(self):
+                global textlist
+                global globalIndex
+                global globalText
 
 
+                textlist[globalIndex].config(text=globalText)
     def getDataEventListener(self):
         return self.ListenerSampleImpl()
 
-
     def uiInit(self):
+        global textlist
         self.root = Tk()
         self.root.title("Test Lab")
         self.root.geometry("500x700")
@@ -47,19 +72,17 @@ class UIManager:
         frame2 = Frame(self.root, relief='solid', bd=2)
         frame2.pack(side='bottom', fill='both', expand=True, padx= 50, pady=50)
 
-        textlist = []
-
         for i in range(18):
             textlist.append(Label(frame2))
 
 
-        textlist[0].config(text='시ㆍ도')
-        textlist[2].config(text='군ㆍ구')
-        textlist[4].config(text='읍ㆍ면ㆍ동')
-        textlist[6].config(text='도로명')
-        textlist[8].config(text='건물번호')
-        textlist[10].config(text='동ㆍ층ㆍ호')
-        textlist[12].config(text='추가정보')
+        textlist[PLACE_SI].config(text='시ㆍ도')
+        textlist[PLACE_GU].config(text='군ㆍ구')
+        textlist[PLACE_DONG].config(text='읍ㆍ면ㆍ동')
+        textlist[PLACE_STREET].config(text='도로명')
+        textlist[PLACE_NUM].config(text='건물번호')
+        textlist[PLACE_HO].config(text='동ㆍ층ㆍ호')
+        textlist[PLACE_ADD].config(text='추가정보')
 
         count = 0
         for i in range(3):
@@ -67,4 +90,5 @@ class UIManager:
                 textlist[count].grid(row=i, column=j, ipadx=10, ipady=10)
                 count += 1
 
-pass
+
+
