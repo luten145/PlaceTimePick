@@ -133,10 +133,11 @@ class Engine2:
         text_list=str(text).split('\\n')
         text_str=str(text).replace("\\n"," ")
         print(text_list)
+        print(text_str)
         print()
         print()
 
-        placeKey = ["서울","부산","대구","인천","광주","대전","울산","경기","강원","충청","전라","경상","제주","세종","홀","웨딩","장례","층"]
+        """placeKey = ["서울","부산","대구","인천","광주","대전","울산","경기","강원","충청","전라","경상","제주","세종","홀","웨딩","장례","층"]
         place_list=[]
 
         nameKey = ['남','녀',"아들","딸",'의']
@@ -151,7 +152,18 @@ class Engine2:
             for j in nameKey:
                 if text_list[i].find(j) != -1:
                     name_list.append(text_list[i+1])
-                    break
+                    break"""
+
+        regionPattern = ["서울", "부산", "대구", "인천", "광주", "대전", "울산", "경기", "강원", "충청", "충북", "충남", "전라","전북", "전남", "경상", "경북", "경남", "제주", "세종"]
+        region = [item for item in text_list if any(re.search(p, item) for p in regionPattern)]
+        regionList = region[0].split()
+        region0 = regionList[0]
+        region1 = regionList[1]
+        region2 = regionList[2]
+        region3 = str(' '.join(regionList[3:5]))
+
+        placePattern = ["홀", "웨딩", "층", "장례"]
+        place = [item for item in text_list if any(re.search(p, item) for p in placePattern)]
 
         #초기화
         year, month, day, week, hour, minute = 0, 0, 0, 0, 0, 0
@@ -162,9 +174,9 @@ class Engine2:
         if ymdStr:
             ymdEndIndex = ymdStr.end()
             ymdNextText = text_str[ymdEndIndex:]
-            year = ymdStr.group(1)
-            month = ymdStr.group(2)
-            day = ymdStr.group(3)
+            year = int(ymdStr.group(1))
+            month = int(ymdStr.group(2))
+            day = int(ymdStr.group(3))
 
         # 요일 추출 - 월요일 or (월) or 월
         #weekPattern = r"(월요일|화요일|수요일|목요일|금요일|토요일|일요일|\((월|화|수|목|금|토|일)\)|월|화|수|목|금|토|일)"
@@ -184,8 +196,14 @@ class Engine2:
                 hour += 12
             minute = int(timeStr.group(2) or 0)
 
-        print("장소: ", place_list)
-        print(name_list)
+        #print("장소: ", place_list)
+        print("지역: ", region, type(region))
+        print("시/도: ", region0, type(region0))
+        print("시/군/구: ", region1, type(region1))
+        print("읍/면: ", region2, type(region2))
+        print("도로명: ", region3, type(region3))
+        #print(name_list)
+        print("장소: ", place)
         print("----------")
         print("년:", year, type(year))
         print("월:", month, type(month))
