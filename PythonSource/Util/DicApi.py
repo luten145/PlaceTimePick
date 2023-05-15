@@ -17,7 +17,8 @@ def getDataList(data, s, e):
         tmp = data.split(s)
         data = []
         for i in range(0, len(tmp)):
-            if e in tmp[i]: data.append(tmp[i][:tmp[i].find(e)])
+            if e in tmp[i]:
+                data.append(tmp[i][:tmp[i].find(e)])
     else:
         data = []
     return data
