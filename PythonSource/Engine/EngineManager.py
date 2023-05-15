@@ -1,15 +1,16 @@
+import re
 from tkinter import *
 from konlpy.tag import Kkma
-from PythonSource.Util import LogUtil as logUtil
 import PythonSource.Util.DicApi as dicApi
-import re
+from PythonSource.Util import LogUtil as logUtil
 from PythonSource.UI.UIListener import UIEventListener
 from PythonSource.UI import UIMain
 
-TAG = "Engine"
-
+TAG = "MainManager"
 
 class MainEngine:
+
+    TAG = "MainEngine"
 
     def __init__(self,uiManager:UIEventListener):
         self.mUIManager = uiManager
@@ -224,10 +225,4 @@ class Engine2:
         self.mUIManager.onSetDataEvent(UIMain.TIME_HOUR,str(hour))
         self.mUIManager.onSetDataEvent(UIMain.TIME_MIN,str(minute))
 
-
-
-
-
         pass
-
-
