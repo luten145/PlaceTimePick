@@ -23,19 +23,17 @@ TIME_HOUR = 19
 PLACE_MIN = 21
 
 
-
-
 TAG = "UIMain"
 
 class UIManager:
+
+    TAG = "UIManager"
 
     def __init__(self, listener_sample: FrameworkListener):
         self.listener_sample = listener_sample
         self.uiInit()
 
 
-
-    TAG = "UIManager"
     class ListenerSampleImpl(UIEventListener):
         def onSetDataEvent(self,index : int,text : str) -> bool:
             global globalIndex
@@ -44,10 +42,11 @@ class UIManager:
             globalIndex = index
             globalText = text
             self.UIdEit.editLabel()
-            #logUtil.Log(TAG, "Index : " + str(index) + " | Data : " + text)
+            logUtil.Log(TAG, "Index : " + str(index) + " | Data : " + text)
             return False
+
         class UIdEit:
-            def editLabel():
+            def editLabel(self):
                 global placeTextList
                 global globalIndex
                 global globalText
