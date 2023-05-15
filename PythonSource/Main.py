@@ -27,4 +27,5 @@ def main():
     uiManager.root.mainloop()
     pass
 
+    print("**")
 main()
