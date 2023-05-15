@@ -3,7 +3,7 @@ import PythonSource.UI.UIMain as ui
 from PythonSource.UI.UIListener import FrameworkListener
 import PythonSource.Util.JsonUtil as jsonUtil
 
-TAG = "TestLabMain"
+TAG = "TestLabMain "
 
 jsonManager = jsonUtil.JsonManager()
 
