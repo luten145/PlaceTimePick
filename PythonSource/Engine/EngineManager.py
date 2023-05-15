@@ -218,6 +218,13 @@ class Engine2:
         self.mUIManager.onSetDataEvent(UIMain.PLACE_GU,region1)
         self.mUIManager.onSetDataEvent(UIMain.PLACE_DONG,region2)
         self.mUIManager.onSetDataEvent(UIMain.PLACE_STREET,region3)
+        self.mUIManager.onSetDataEvent(UIMain.TIME_YEAR,str(year))
+        self.mUIManager.onSetDataEvent(UIMain.TIME_MONTH,str(month))
+        self.mUIManager.onSetDataEvent(UIMain.TIME_DATE,str(day))
+        self.mUIManager.onSetDataEvent(UIMain.TIME_HOUR,str(hour))
+        self.mUIManager.onSetDataEvent(UIMain.TIME_MIN,str(minute))
+
+
 
 
 
