@@ -4,29 +4,36 @@ from PythonSource.UI.UIListener import UIEventListener
 from PythonSource.Util import LogUtil as logUtil
 
 
-textlist = []
+placeTextList = []
+timeTextList = []
 globalIndex = 0
 globalText = ''
+addInfoTextList = []
+
+PLACE_SI = 1
+PLACE_GU = 3
+PLACE_DONG = 5
+PLACE_STREET = 7
+PLACE_NUM = 9
+PLACE_HO = 11
+TIME_YEAR = 13
+TIME_MONTH = 15
+TIME_DATE = 17
+TIME_HOUR = 19
+PLACE_MIN = 21
+
 
 TAG = "UIMain"
 
-PLACE_SI = 0
-PLACE_GU = 2
-PLACE_DONG = 4
-PLACE_STREET = 6
-PLACE_NUM = 8
-PLACE_HO = 10
-PLACE_ADD = 12
-
 class UIManager:
+
+    TAG = "UIManager"
 
     def __init__(self, listener_sample: FrameworkListener):
         self.listener_sample = listener_sample
         self.uiInit()
 
 
-
-    TAG = "UIManager"
     class ListenerSampleImpl(UIEventListener):
         def onSetDataEvent(self,index : int,text : str) -> bool:
             global globalIndex
@@ -34,25 +41,34 @@ class UIManager:
 
             globalIndex = index
             globalText = text
-            self.UIdEit.editLabel(self)
+            self.UIdEit.editLabel()
             logUtil.Log(TAG, "Index : " + str(index) + " | Data : " + text)
             return False
+
         class UIdEit:
             def editLabel(self):
-                global textlist
+                global placeTextList
                 global globalIndex
                 global globalText
+                global addInfoTextList
 
+                if globalIndex < 13:
+                    placeTextList[globalIndex].config(text=globalText)
+                elif globalIndex == 21:
+                    addInfoTextList[21 - globalIndex + 1].config(text=globalText)
+                else:
+                    timeTextList[13 - globalIndex + 1].config(text=globalText)
 
-                textlist[globalIndex].config(text=globalText)
     def getDataEventListener(self):
         return self.ListenerSampleImpl()
 
     def uiInit(self):
-        global textlist
+        global placeTextList
+        global timeTextList
+        global addInfoTextList
         self.root = Tk()
         self.root.title("Test Lab")
-        self.root.geometry("500x700")
+        self.root.geometry("750x1000")
 
         self.btn = Button(self.root, text="검색", command= lambda :self.listener_sample.onTkinterEvent(self.text))
         self.btn.place(x= 200,y=200,height=10,width=50)
@@ -70,25 +86,55 @@ class UIManager:
         frame1.pack(side='top', fill="both", expand=FALSE)
 
         frame2 = Frame(self.root, relief='solid', bd=2)
-        frame2.pack(side='bottom', fill='both', expand=True, padx= 50, pady=50)
+        frame2.pack(side='top', fill="x", expand=True, padx= 20, pady=20)
 
-        for i in range(18):
-            textlist.append(Label(frame2))
+        frame3 = Frame(self.root, relief='solid', bd=2)
+        frame3.pack(side='top', fill="x", expand=True, padx= 20, pady=20)
+
+        frame4 = Frame(self.root, relief='solid', bd=2)
+        frame4.pack(side='bottom', fill="x", expand=True, padx= 20, pady=20)
 
 
-        textlist[PLACE_SI].config(text='시ㆍ도')
-        textlist[PLACE_GU].config(text='군ㆍ구')
-        textlist[PLACE_DONG].config(text='읍ㆍ면ㆍ동')
-        textlist[PLACE_STREET].config(text='도로명')
-        textlist[PLACE_NUM].config(text='건물번호')
-        textlist[PLACE_HO].config(text='동ㆍ층ㆍ호')
-        textlist[PLACE_ADD].config(text='추가정보')
+        for i in range(12):
+            placeTextList.append(Label(frame2))
+
+        placeTextList[0].config(text='시ㆍ도')
+        placeTextList[2].config(text='군ㆍ구')
+        placeTextList[4].config(text='읍ㆍ면ㆍ동')
+        placeTextList[6].config(text='도로명')
+        placeTextList[8].config(text='건물번호')
+        placeTextList[10].config(text='동ㆍ층ㆍ호')
+
+        for i in range(8):
+            timeTextList.append(Label(frame3))
+
+        timeTextList[0].config(text='년')
+        timeTextList[2].config(text='월')
+        timeTextList[4].config(text='일')
+        timeTextList[6].config(text='시')
+
+        for i in range(3):
+            addInfoTextList.append(Label(frame4))
+
+        addInfoTextList[0].config(text='추가정보')
 
         count = 0
-        for i in range(3):
+        for i in range(2):
             for j in range(6):
-                textlist[count].grid(row=i, column=j, ipadx=10, ipady=10)
+                placeTextList[count].grid(row=i, column=j, padx=3, pady=5)
                 count += 1
 
+        count = 0
+        j = 0
+        for i in range(8):
+            timeTextList[count].grid(row=3, column=j, ipadx=3, ipady=10)
+            count += 1
+            j += 1
 
 
+        addInfoTextList[0].grid(row=4, column = 0)
+
+        count = 0
+        for i in range(len(addInfoTextList)):
+            addInfoTextList[count].grid(row=5 + count, column = 1)
+            count
