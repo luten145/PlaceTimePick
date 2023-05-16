@@ -41,7 +41,7 @@ class UIManager:
 
             globalIndex = index
             globalText = text
-            self.UIdEit.editLabel()
+            self.UIdEit.editLabel(self)
             logUtil.Log(TAG, "Index : " + str(index) + " | Data : " + text)
             return False
 

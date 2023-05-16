@@ -5,36 +5,21 @@ import PythonSource.Util.DicApi as dicApi
 from PythonSource.Util import LogUtil as logUtil
 from PythonSource.UI.UIListener import UIEventListener
 from PythonSource.UI import UIMain
-from PythonSource.Engine.Engine1 import Engine1
-from PythonSource.Engine.Engine3 import Engine3
-TAG = "MainManager"
+from PythonSource.Util import AddressDB
+from PythonSource.Util import StringUtil
 
-class MainEngine:
-
-    TAG = "MainEngine"
-
-    def __init__(self,uiManager:UIEventListener):
-        self.mUIManager = uiManager
-        pass
-
-    def tkinterHandler(self, data):
-        Engine1(self.mUIManager).tkinterHandler(data)
-        pass
-
-    def jsonHandler(self,data):
-        j = Engine1(self.mUIManager)
-        j.jsonHandler(data)
-        #Engine2(self.mUIManager).jsonHandler(data)
-        #Engine3(self.mUIManager).jsonHandler(data)
-        pass
-
-    pass
+TAG = "Engine3"
 
 
-class Engine2:
+
+
+class Engine3:
+
     def __init__(self,uiManager : UIEventListener):
         self.mUIManager = uiManager
         pass
+
+
 
     def jsonHandler(self,data):
         self.mUIManager.onSetDataEvent(1,"HELLO ENGINE2")
@@ -47,35 +32,42 @@ class Engine2:
 
         text_list=str(text).split('\\n')
         text_str=str(text).replace("\\n"," ")
-        print(text_list)
-        print(text_str)
-        print()
-        print()
+        logUtil.Log(TAG,text_list)
+        logUtil.Log(TAG,text_str)
 
-        """placeKey = ["서울","부산","대구","인천","광주","대전","울산","경기","강원","충청","전라","경상","제주","세종","홀","웨딩","장례","층"]
-        place_list=[]
 
-        nameKey = ['남','녀',"아들","딸",'의']
-        name_list=[]
 
-        for i in range(len(text_list)):
-            for j in placeKey:
-                if text_list[i].find(j) != -1:
-                    place_list.append(text_list[i])
-                    break
+        #데이터에서 시를 찾습니다.
 
-            for j in nameKey:
-                if text_list[i].find(j) != -1:
-                    name_list.append(text_list[i+1])
-                    break"""
+        cityList = self.getCity(text_list)
 
-        regionPattern = ["서울", "부산", "대구", "인천", "광주", "대전", "울산", "경기", "강원", "충청", "충북", "충남", "전라","전북", "전남", "경상", "경북", "경남", "제주", "세종"]
+
+        #데이터에서 시,군,구를 찾습니다.
+
+        # 경우 나누기
+        # 1. 데이터가 없는경우 -> 데이터 없음 뒤에 데이터 찾은 뒤 검색
+
+        # 2. 데이터가 여러개인 경우 -> 정렬 순위별로 검색
+        # 2-1 순위가 똑같은 경우 -> 둘다 검색
+
+        # 3. 데이터가 한개인 경우 -> 확정
+
+
+        #데이터에서 
+
+
+
+
+
+
+        '''
         region = [item for item in text_list if any(re.search(p, item) for p in regionPattern)]
         regionList = region[0].split()
         region0 = regionList[0]
         region1 = regionList[1]
         region2 = regionList[2]
         region3 = str(' '.join(regionList[3:5]))
+        '''
 
         placePattern = ["홀", "웨딩", "층", "장례"]
         place = [item for item in text_list if any(re.search(p, item) for p in placePattern)]
@@ -111,31 +103,57 @@ class Engine2:
                 hour += 12
             minute = int(timeStr.group(2) or 0)
 
-        #print("장소: ", place_list)
+        #logUtil.Log(TAG,"장소: ", place_list)
 
-        print("지역: ", region, type(region))
-        print("시/도: ", region0, type(region0))
-        print("시/군/구: ", region1, type(region1))
-        print("읍/면: ", region2, type(region2))
-        print("도로명: ", region3, type(region3))
-        #print(name_list)
-        print("장소: ", place)
-        print("----------")
-        print("년:", year, type(year))
-        print("월:", month, type(month))
-        print("일:", day, type(day))
-        print("요일:", week, type(week))
-        print("시: ", hour, type(hour))
-        print("분: ", minute, type(minute))
+        '''
+        logUtil.Log(TAG,"지역: ", region, type(region))
+        logUtil.Log(TAG,"시/도: ", region0, type(region0))
+        logUtil.Log(TAG,"시/군/구: ", region1, type(region1))
+        logUtil.Log(TAG,"읍/면: ", region2, type(region2))
+        logUtil.Log(TAG,"도로명: ", region3, type(region3))
+        '''
+        #logUtil.Log(TAG,name_list)
+        logUtil.Log(TAG,"장소: ", place)
+        logUtil.Log(TAG,"----------")
+        logUtil.Log(TAG,"년:", year)
+        logUtil.Log(TAG,"월:", month)
+        logUtil.Log(TAG,"일:", day)
+        logUtil.Log(TAG,"요일:", week)
+        logUtil.Log(TAG,"시: ", hour)
+        logUtil.Log(TAG,"분: ", minute)
 
+        '''
         self.mUIManager.onSetDataEvent(UIMain.PLACE_SI,region0)
         self.mUIManager.onSetDataEvent(UIMain.PLACE_GU,region1)
         self.mUIManager.onSetDataEvent(UIMain.PLACE_DONG,region2)
         self.mUIManager.onSetDataEvent(UIMain.PLACE_STREET,region3)
+        '''
         self.mUIManager.onSetDataEvent(UIMain.TIME_YEAR,str(year))
         self.mUIManager.onSetDataEvent(UIMain.TIME_MONTH,str(month))
         self.mUIManager.onSetDataEvent(UIMain.TIME_DATE,str(day))
         self.mUIManager.onSetDataEvent(UIMain.TIME_HOUR,str(hour))
-        self.mUIManager.onSetDataEvent(UIMain.TIME_MIN,str(minute))
+        #self.mUIManager.onSetDataEvent(UIMain.TIME_MIN,str(minute))
 
+        pass
+
+    def getCity(self,textList):
+        #데이터에서 시를 찾습니다.
+        tag = "getCity"
+        regionPattern = ["서울", "부산", "대구", "인천", "광주", "대전", "울산", "경기", "강원", "충청", "충북", "충남", "전라","전북", "전남", "경상", "경북", "경남", "제주", "세종"]
+        res = {}
+        for i in textList:
+            for j in regionPattern:
+                num = StringUtil.countPattern(i,j)
+                if num > 0:
+                    d = res.get(j)
+                    if(d == None):
+                        res[j] = 1
+                    else:
+                        res[j] +=1
+
+        k = sorted(res.items())
+        logUtil.Log(tag,k)
+        return k
+
+    def getDistrict(self,textList):
         pass

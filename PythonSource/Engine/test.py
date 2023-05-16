@@ -25,7 +25,12 @@ FIND_TOWN="화산면"
 FIND_ROAD="신정길"
 FIND_NUM="60"
 
-f = open("Address.txt", "r", encoding="utf-8")
+import os
+
+current_working_directory = os.getcwd()
+print(current_working_directory)
+
+#f = open("../Address.txt", "r", encoding="utf-8")
 AddressList=[i.split("|") for i in f.readlines()]
 f.close()
 

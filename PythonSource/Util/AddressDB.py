@@ -33,10 +33,12 @@ FIND_NUM=4
 #  SearchAdress(AddressList,"경상북도",0)  # 출력 : 서울 특별시 , 강원도, 제주특별자치도
 #  SearchAdress(AddressList,"경상북도",1)  # 출력 : 서울,강원,대구
 
-f = open("../Util/Address.txt", "r", encoding="utf-8")
+f = open("./Util/Address.txt", "r", encoding="utf-8")
 AddressList=[i.split("|") for i in f.readlines()]
 f.close()
 
+'''
+Scarch Example
 CityList=SearchAdress(AddressList,"경상북도")
 print(CityList)
 DistrictList=SearchAdress(CityList,"영천시",FIND_DISTRICT)
@@ -45,5 +47,6 @@ TownList=SearchAdress(DistrictList,"화산면",FIND_TOWN)
 print(TownList)
 RoadList=SearchAdress(TownList,"신정길",FIND_ROAD)
 print(RoadList)
-NumList=SearchAdress(RoadList,60,FIND_NUM)
+NumList=SearchAdress(RoadList,"60",FIND_NUM)
 print(NumList)
+'''
