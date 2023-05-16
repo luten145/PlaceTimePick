@@ -47,7 +47,7 @@ def SearchAdress(AddressList,Find=0,AddressNum=1,AddressGet=1):
 #  SearchAdress(AddressList,"경상북도",0)  # 출력 : 서울 특별시 , 강원도, 제주특별자치도
 #  SearchAdress(AddressList,"경상북도",1)  # 출력 : 서울,강원,대구
 
-# TODO 2 : 한글자인거는 뒤까지 툴력 하도록  변경 ex) 중구 -> x
+# TODO 2 : 한글자인거는 뒤까지 툴력 하도록  변경 ex) 중구 -> 중 (X)  , 중구 -> 중구
 
 f = open("Address.txt", "r", encoding="utf-8")
 AddressList=[i.split("|") for i in f.readlines()]
