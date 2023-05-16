@@ -1,30 +1,40 @@
 
-def SearchAdress(AddressList,Find,AdressNum=0):
-    if AdressNum == 0:
-        City=[i for i in AddressList if Find in i[1]]
-        return City
+def SearchAdress(AddressList,Find=0,AddressNum=1,AddressGet=1):
+    if Find != 0:
+        if AddressGet == 1:
+            Address=[list(set([i[AddressGet] for i in AddressList if Find in i[AddressNum]])) if j == 1 else list(set([i[AddressGet][0:2] for i in AddressList if Find in i[AddressNum]])) for j in range(2)]
+            return Address
+        elif AddressGet == 3 or AddressGet == 5:
+            Address=[list(set([i[AddressGet] for i in AddressList if Find in i[AddressNum]])) if j == 1 else list(set([i[AddressGet][:-1] for i in AddressList if Find in i[AddressNum]])) for j in range(2)]
+            return Address
+        else:
+            Address=list(set([i[AddressGet] for i in AddressList if Find in i[AddressNum]]))
+            return Address
+    
+    elif Find == 0:
+        if AddressGet == 1:
+            CityList=[list(set([i[AddressGet] for i in AddressList])) if j == 1 else list(set([i[AddressGet][0:2] for i in AddressList])) for j in range(2)]
+            return CityList
+        elif AddressGet == 3 or AddressGet == 5:
+            DorTList=[list(set([i[AddressGet] for i in AddressList])) if j == 1 else list(set([i[AddressGet][:-1] for i in AddressList])) for j in range(2)]
+            return DorTList
+        else:
+            RorNList=list(set([i[AddressGet] for i in AddressList]))
+            return RorNList
+        
+#탐색하는 데이터의 위치 (판별대상)
+FIND2CITY=1
+FIND2DISTRICT=3
+FIND2TOWN=5
+FIND2ROAD=7
+FIND2NUM=10
 
-    elif AdressNum == 1:
-        District=[i for i in AddressList if Find in i[3]]
-        return District
-
-    elif AdressNum == 2:
-        Town=[i for i in AddressList if Find in i[5]]
-        return Town
-
-    elif AdressNum == 3:
-        Road=[i for i in AddressList if Find in i[7]]
-        return Road
-
-    elif AdressNum == 4:
-        Num=[i for i in AddressList if Find in i[10]]
-        return Num
-
-FIND_CITY=0
-FIND_DISTRICT=1
-FIND_TOWN=2
-FIND_ROAD=3
-FIND_NUM=4
+#리스트로 얻고자 하는 데이터의 종류 (출력대상)
+FIND_CITY=1
+FIND_DISTRICT=3
+FIND_TOWN=5
+FIND_ROAD=7
+FIND_NUM=10
 
 # TODO 1 : 핵심 단어만 리스트화하는 함수 만들기
 #  EX)서울 특별시 -> 서울 ,강원도 -> 강원
@@ -33,20 +43,36 @@ FIND_NUM=4
 #  SearchAdress(AddressList,"경상북도",0)  # 출력 : 서울 특별시 , 강원도, 제주특별자치도
 #  SearchAdress(AddressList,"경상북도",1)  # 출력 : 서울,강원,대구
 
-f = open("./Util/Address.txt", "r", encoding="utf-8")
+f = open("PythonSource/Util/Address.txt", "r", encoding="utf-8")
 AddressList=[i.split("|") for i in f.readlines()]
 f.close()
 
-'''
-Scarch Example
-CityList=SearchAdress(AddressList,"경상북도")
+CityList=SearchAdress(AddressList,AddressGet=FIND_CITY)
 print(CityList)
-DistrictList=SearchAdress(CityList,"영천시",FIND_DISTRICT)
+
+CityList=SearchAdress(AddressList,Find="강서구",AddressNum=FIND_DISTRICT,AddressGet=FIND_CITY)
+print(CityList)
+
+DistrictList=SearchAdress(AddressList,AddressGet=FIND_DISTRICT)
 print(DistrictList)
-TownList=SearchAdress(DistrictList,"화산면",FIND_TOWN)
+
+DistrictList=SearchAdress(AddressList,Find="서울",AddressNum=FIND2CITY,AddressGet=FIND_DISTRICT)
+print(DistrictList)
+
+TownList=SearchAdress(AddressList,AddressGet=FIND_TOWN)
 print(TownList)
-RoadList=SearchAdress(TownList,"신정길",FIND_ROAD)
+
+TownList=SearchAdress(AddressList,Find="금산군",AddressNum=FIND2DISTRICT,AddressGet=FIND_TOWN)
+print(TownList)
+
+RoadList=SearchAdress(AddressList,AddressGet=FIND_ROAD)
 print(RoadList)
-NumList=SearchAdress(RoadList,"60",FIND_NUM)
+
+RoadList=SearchAdress(AddressList,Find="강동구",AddressNum=FIND2DISTRICT,AddressGet=FIND_ROAD)
+print(RoadList)
+
+# NumList=SearchAdress(AddressList,AddressGet=FIND_NUM)
+# print(NumList)
+
+NumList=SearchAdress(AddressList,Find="금산군",AddressNum=FIND2DISTRICT,AddressGet=FIND_NUM)
 print(NumList)
-'''
