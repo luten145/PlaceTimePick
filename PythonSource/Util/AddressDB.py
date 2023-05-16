@@ -1,10 +1,26 @@
 
+
+#탐색하는 데이터의 위치 (판별대상)
+FIND2CITY=1
+FIND2DISTRICT=3
+FIND2TOWN=5
+FIND2ROAD=7
+FIND2NUM=10
+
+#리스트로 얻고자 하는 데이터의 종류 (출력대상)
+FIND_CITY=1
+FIND_DISTRICT=3
+FIND_TOWN=5
+FIND_ROAD=7
+FIND_NUM=10
+
+
 def SearchAdress(AddressList,Find=0,AddressNum=1,AddressGet=1):
     if Find != 0:
-        if AddressGet == 1:
+        if AddressGet == FIND_CITY:
             Address=[list(set([i[AddressGet] for i in AddressList if Find in i[AddressNum]])) if j == 1 else list(set([i[AddressGet][0:2] for i in AddressList if Find in i[AddressNum]])) for j in range(2)]
             return Address
-        elif AddressGet == 3 or AddressGet == 5:
+        elif AddressGet == FIND_DISTRICT or AddressGet == 5:
             Address=[list(set([i[AddressGet] for i in AddressList if Find in i[AddressNum]])) if j == 1 else list(set([i[AddressGet][:-1] for i in AddressList if Find in i[AddressNum]])) for j in range(2)]
             return Address
         else:
@@ -22,19 +38,7 @@ def SearchAdress(AddressList,Find=0,AddressNum=1,AddressGet=1):
             RorNList=list(set([i[AddressGet] for i in AddressList]))
             return RorNList
         
-#탐색하는 데이터의 위치 (판별대상)
-FIND2CITY=1
-FIND2DISTRICT=3
-FIND2TOWN=5
-FIND2ROAD=7
-FIND2NUM=10
 
-#리스트로 얻고자 하는 데이터의 종류 (출력대상)
-FIND_CITY=1
-FIND_DISTRICT=3
-FIND_TOWN=5
-FIND_ROAD=7
-FIND_NUM=10
 
 # TODO 1 : 핵심 단어만 리스트화하는 함수 만들기
 #  EX)서울 특별시 -> 서울 ,강원도 -> 강원
@@ -43,11 +47,24 @@ FIND_NUM=10
 #  SearchAdress(AddressList,"경상북도",0)  # 출력 : 서울 특별시 , 강원도, 제주특별자치도
 #  SearchAdress(AddressList,"경상북도",1)  # 출력 : 서울,강원,대구
 
-f = open("PythonSource/Util/Address.txt", "r", encoding="utf-8")
+# TODO 2 : 한글자인거는 뒤까지 툴력 하도록  변경 ex) 중구 -> x
+
+f = open("Address.txt", "r", encoding="utf-8")
 AddressList=[i.split("|") for i in f.readlines()]
 f.close()
 
-CityList=SearchAdress(AddressList,AddressGet=FIND_CITY)
+
+
+CityList=SearchAdress(AddressList)
+print(CityList[0])
+
+CityLista=SearchAdress(AddressList,"서울",FIND2CITY,FIND_DISTRICT)
+print(CityLista[0])
+
+'''
+Scarch Example
+CityList=SearchAdress(AddressList,"경상북도")
+>>>>>>> Stashed changes
 print(CityList)
 
 CityList=SearchAdress(AddressList,Find="강서구",AddressNum=FIND_DISTRICT,AddressGet=FIND_CITY)
@@ -76,3 +93,4 @@ print(RoadList)
 
 NumList=SearchAdress(AddressList,Find="금산군",AddressNum=FIND2DISTRICT,AddressGet=FIND_NUM)
 print(NumList)
+'''
