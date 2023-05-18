@@ -55,10 +55,10 @@ class Engine2:
         print()
 
         textPos = kkma.pos(text_str)                   # 형태소를 분리하고 품사 부착
-        posWord = [word for (word, tag) in textPos]   # 품사 부착 후 단어들만 추출
-        posTag = [tag for (word, tag) in textPos]     # 품사 부착 후 태그들만 추출
+        posWord = [word for (word, tag) in textPos]   # textPos 단어들만 추출
+        posTag = [tag for (word, tag) in textPos]     # textPos 태그들만 추출
         nouns = [(word, tag) for (word, tag) in textPos if tag.startswith('N')]        # 형태소 분리, 품사 부착 후 명사들만 추출
-        nounsWord = [word for (word, tag) in nouns]
+        nounsWord = [word for (word, tag) in nouns]     # posTag 단어들만 추출
         print('textPos: ', textPos)
         print('posWord: ', posWord[0])
         print('posTag: ', posTag[0])
@@ -66,7 +66,8 @@ class Engine2:
         print('nouns_word:', nounsWord)
 
         for i in nounsWord:
-            nounDic = dicApi.wordSearch(nounsWord)
+            #nounDic = dicApi.wordSearch(nounsWord)
+            nounDic = nounsWord[i]
             if(nounDic != -1):
                 logUtil.Log(TAG, "-------------------")
                 logUtil.Log(TAG, "검색한 단어 : " + nounDic.word)
