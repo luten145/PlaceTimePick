@@ -26,23 +26,24 @@ class Engine3:
         logUtil.Log(TAG,"dataIN!!")
         # data is json File
         # json 파일 내에 text 키의 값들만 읽어서 하나의 리스트로 만들기
-        text_list = data["task_result"]["text"]
-        combined_text = "".join(text_list)
+        textList = data["task_result"]["text"]
+        combined_text = "".join(textList)
         text = [combined_text]
 
-        text_list=str(text).split('\\n')
+        textList=str(text).split('\\n')
         text_str=str(text).replace("\\n"," ")
-        logUtil.Log(TAG,text_list)
+        logUtil.Log(TAG, textList)
         logUtil.Log(TAG,text_str)
 
 
 
         #데이터에서 시를 찾습니다.
-
-        cityList = self.getCity(text_list)
-
+        cityList = self.getCity(textList)
 
         #데이터에서 시,군,구를 찾습니다.
+        districtList = self.getDistrict(textList, cityList)
+
+        townList = self.getTown(textList, districtList)
 
         # 경우 나누기
         # 1. 데이터가 없는경우 -> 데이터 없음 뒤에 데이터 찾은 뒤 검색
@@ -53,11 +54,7 @@ class Engine3:
         # 3. 데이터가 한개인 경우 -> 확정
 
 
-        #데이터에서 
-
-
-
-
+        #데이터에서
 
 
         '''
@@ -70,7 +67,7 @@ class Engine3:
         '''
 
         placePattern = ["홀", "웨딩", "층", "장례"]
-        place = [item for item in text_list if any(re.search(p, item) for p in placePattern)]
+        place = [item for item in textList if any(re.search(p, item) for p in placePattern)]
 
         #초기화
         year, month, day, week, hour, minute = 0, 0, 0, 0, 0, 0
@@ -113,14 +110,14 @@ class Engine3:
         logUtil.Log(TAG,"도로명: ", region3, type(region3))
         '''
         #logUtil.Log(TAG,name_list)
-        logUtil.Log(TAG,"장소: ", place)
-        logUtil.Log(TAG,"----------")
-        logUtil.Log(TAG,"년:", year)
-        logUtil.Log(TAG,"월:", month)
-        logUtil.Log(TAG,"일:", day)
-        logUtil.Log(TAG,"요일:", week)
-        logUtil.Log(TAG,"시: ", hour)
-        logUtil.Log(TAG,"분: ", minute)
+        #logUtil.Log(TAG,"장소: "+ str(place))
+        #logUtil.Log(TAG,"----------")
+        #logUtil.Log(TAG,"년:"+ year)
+        #logUtil.Log(TAG,"월:"+ month)
+        #logUtil.Log(TAG,"일:"+ day)
+        #logUtil.Log(TAG,"요일:"+ week)
+        #logUtil.Log(TAG,"시: "+hour)
+        #logUtil.Log(TAG,"분: "+ minute)
 
         '''
         self.mUIManager.onSetDataEvent(UIMain.PLACE_SI,region0)
@@ -139,7 +136,11 @@ class Engine3:
     def getCity(self,textList):
         #데이터에서 시를 찾습니다.
         tag = "getCity"
-        regionPattern = ["서울", "부산", "대구", "인천", "광주", "대전", "울산", "경기", "강원", "충청", "충북", "충남", "전라","전북", "전남", "경상", "경북", "경남", "제주", "세종"]
+        self.a= AddressDB.AddressDB()
+        regionPattern = self.a.getAdressList()[0]
+
+
+
         res = {}
         for i in textList:
             for j in regionPattern:
@@ -153,7 +154,65 @@ class Engine3:
 
         k = sorted(res.items())
         logUtil.Log(tag,k)
+        key,value =k.__getitem__(0)
+        self.mUIManager.onSetDataEvent(UIMain.PLACE_SI,key)
         return k
 
-    def getDistrict(self,textList):
-        pass
+    def getDistrict(self, textList,cityList):
+        tag = "getDistrict"
+
+        #데이터에서 시를 찾습니다.
+        key,value = cityList.__getitem__(0)
+        logUtil.Log(tag,str(key))
+
+        ll = self.a.getAdressList(key,AddressDB.FIND2CITY,AddressDB.FIND_DISTRICT)
+
+        logUtil.Log(tag,ll)
+        regionPattern = ll[0]
+
+        res = {}
+        for i in textList:
+            for j in regionPattern:
+                num = StringUtil.countPattern(i,j)
+                if num > 0:
+                    d = res.get(j)
+                    if(d == None):
+                        res[j] = 1
+                    else:
+                        res[j] +=1
+
+        k = sorted(res.items())
+        logUtil.Log(tag,k)
+        mkey,mvalue =k.__getitem__(0)
+        self.mUIManager.onSetDataEvent(UIMain.PLACE_GU,mkey)
+        return k
+
+
+    def getTown(self, textList,cityList):
+        tag = " getTown"
+
+        #데이터에서 시를 찾습니다.
+        key,value = cityList.__getitem__(0)
+        logUtil.Log(tag,str(key))
+
+        ll = self.a.getAdressList(key,AddressDB.FIND2DISTRICT,AddressDB.FIND_ROAD)
+
+        logUtil.Log(tag,ll)
+        regionPattern = ll[0]
+
+        res = {}
+        for i in textList:
+            for j in regionPattern:
+                num = StringUtil.countPattern(i,j)
+                if num > 0:
+                    d = res.get(j)
+                    if(d == None):
+                        res[j] = 1
+                    else:
+                        res[j] +=1
+
+        k = sorted(res.items())
+        logUtil.Log(tag,k)
+        mkey,mvalue =k.__getitem__(0)
+        self.mUIManager.onSetDataEvent(UIMain.PLACE_STREET,mkey)
+        return k
