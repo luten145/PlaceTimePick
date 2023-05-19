@@ -5,6 +5,7 @@ FIND_CITY=1
 FIND_DISTRICT=3
 FIND_TOWN=5
 FIND_ROAD=7
+FIND_ROAD_NUM=8
 FIND_NUM=10
 
 class AddressDB:
@@ -64,14 +65,27 @@ class AddressDB:
                             if m.start():
                                 Address[0].append(i[AddressGet][:m.start()])
                         else:
-                            Address[0].append(i[AddressGet][:-1])
+                            Address[0].append(i[AddressGet])
                         Address[1].append(i[AddressGet])
                 Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
                 return Address
 
-            else:
+            elif AddressGet == FIND_NUM:
                 Address[0]=list(set([i[AddressGet] for i in AddressList if Find in i[AddressNum]]))
                 return Address
+            
+            elif AddressGet == FIND_ROAD_NUM:
+                for i in AddressList:
+                    if Find in i[AddressNum]:
+                        m = re.search('\d+',i[FIND_ROAD])
+                        if m != None:
+                            if m.start():
+                                Address[0].append(i[FIND_ROAD][m.start():m.end()])
+                                Address[1].append(i[FIND_ROAD][m.start():])
+                Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
+                return Address
+            
+            
 
         elif Find == 0:
             if AddressGet == FIND_CITY:
@@ -112,13 +126,24 @@ class AddressDB:
                         if m.start():
                             Address[0].append(i[AddressGet][:m.start()])
                     else:
-                        Address[0].append(i[AddressGet][:-1])
+                        Address[0].append(i[AddressGet])
                     Address[1].append(i[AddressGet])
                 Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
                 return Address
 
-            else:
+            elif AddressGet == FIND_NUM:
                 Address[0]=list(set([i[AddressGet] for i in AddressList]))
+                return Address
+            
+            elif AddressGet == FIND_ROAD_NUM:
+                for i in AddressList:
+                    if Find in i[AddressNum]:
+                        m = re.search('\d+',i[FIND_ROAD])
+                        if m != None:
+                            if m.start():
+                                Address[0].append(i[FIND_ROAD][m.start():m.end()])
+                                Address[1].append(i[FIND_ROAD][m.start():])
+                Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
                 return Address
 
 
@@ -173,4 +198,5 @@ class AddressDB:
     '''
 
 a = AddressDB()
-print(a.getAdressList(Find="성산중앙로",AddressNum=FIND_ROAD,AddressGet=FIND_ROAD))
+print(a.getAdressList(Find="강동구",AddressNum=FIND_DISTRICT,AddressGet=FIND_ROAD))
+print(a.getAdressList(Find="강동구",AddressNum=FIND_DISTRICT,AddressGet=FIND_ROAD_NUM))
