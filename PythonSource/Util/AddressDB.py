@@ -1,11 +1,4 @@
-
-
-#탐색하는 데이터의 위치 (판별대상)
-FIND2CITY=1
-FIND2DISTRICT=3
-FIND2TOWN=5
-FIND2ROAD=7
-FIND2NUM=10
+import re
 
 #리스트로 얻고자 하는 데이터의 종류 (출력대상)
 FIND_CITY=1
@@ -16,7 +9,7 @@ FIND_NUM=10
 
 class AddressDB:
     def __init__(self):
-        self.f = open("../PythonSource/Util/Address.txt", "r", encoding="utf-8")
+        self.f = open("PythonSource/Util/Address.txt", "r", encoding="utf-8")
         self.AddressList=[i.split("|") for i in self.f.readlines()]
         self.f.close()
 
@@ -28,27 +21,105 @@ class AddressDB:
 
 
     def SearchAddress(self,AddressList, Find=0, AddressNum=1, AddressGet=1):
+        Address=[[]for i in range(2)]
         if Find != 0:
             if AddressGet == FIND_CITY:
-                Address=[list(set([i[AddressGet] for i in AddressList if Find in i[AddressNum]])) if j == 1 else list(set([i[AddressGet][0:2] for i in AddressList if Find in i[AddressNum]])) for j in range(2)]
+                for i in AddressList:
+                    if Find in i[AddressNum]:
+                        Address[0].append(i[AddressGet][0:2]); Address[1].append(i[AddressGet])
+                Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
                 return Address
-            elif AddressGet == FIND_DISTRICT or AddressGet == 5:
-                Address=[list(set([i[AddressGet] for i in AddressList if Find in i[AddressNum]])) if j == 1 else list(set([i[AddressGet][:-1] for i in AddressList if Find in i[AddressNum]])) for j in range(2)]
+            
+            elif AddressGet == FIND_DISTRICT or AddressGet == FIND_TOWN:
+                for i in AddressList:
+                    if Find in i[AddressNum]:
+                        if i[AddressGet].find(" ") != -1:
+                            if len(i[AddressGet].split(" ")[0][:-1]) == 1:
+                                Address[0].append(i[AddressGet].split(" ")[0])
+                            else:
+                                Address[0].append(i[AddressGet].split(" ")[0][:-1])
+                            
+                            if len(i[AddressGet].split(" ")[1][:-1]) == 1:
+                                Address[0].append(i[AddressGet].split(" ")[1])
+                            else:
+                                Address[0].append(i[AddressGet].split(" ")[1][:-1])
+                            
+                            Address[1].extend(i[AddressGet].split(" "))
+                        
+                        else:
+                            if len(i[AddressGet][:-1]) == 1:
+                                Address[0].append(i[AddressGet])
+                            else:
+                                Address[0].append(i[AddressGet][:-1])
+                            Address[1].append(i[AddressGet])
+
+                Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
                 return Address
+            
+            elif AddressGet == FIND_ROAD:
+                for i in AddressList:
+                    if Find in i[AddressNum]:
+                        m = re.search('\d+',i[AddressGet])
+                        if m != None:
+                            if m.start():
+                                Address[0].append(i[AddressGet][:m.start()])
+                        else:
+                            Address[0].append(i[AddressGet][:-1])
+                        Address[1].append(i[AddressGet])
+                Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
+                return Address
+
             else:
-                Address=list(set([i[AddressGet] for i in AddressList if Find in i[AddressNum]]))
+                Address[0]=list(set([i[AddressGet] for i in AddressList if Find in i[AddressNum]]))
                 return Address
 
         elif Find == 0:
-            if AddressGet == 1:
-                CityList=[list(set([i[AddressGet] for i in AddressList])) if j == 1 else list(set([i[AddressGet][0:2] for i in AddressList])) for j in range(2)]
-                return CityList
-            elif AddressGet == 3 or AddressGet == 5:
-                DorTList=[list(set([i[AddressGet] for i in AddressList])) if j == 1 else list(set([i[AddressGet][:-1] for i in AddressList])) for j in range(2)]
-                return DorTList
+            if AddressGet == FIND_CITY:
+                for i in AddressList:
+                    Address[0].append(i[AddressGet][0:2]); Address[1].append(i[AddressGet])
+                Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
+                return Address
+            
+            elif AddressGet == FIND_DISTRICT or AddressGet == FIND_TOWN:
+                for i in AddressList:
+                    if i[AddressGet].find(" ") != -1:
+                        if len(i[AddressGet].split(" ")[0][:-1]) == 1:
+                            Address[0].append(i[AddressGet].split(" ")[0])
+                        else:
+                            Address[0].append(i[AddressGet].split(" ")[0][:-1])
+                        
+                        if len(i[AddressGet].split(" ")[1][:-1]) == 1:
+                            Address[0].append(i[AddressGet].split(" ")[1])
+                        else:
+                            Address[0].append(i[AddressGet].split(" ")[1][:-1])
+                        
+                        Address[1].extend(i[AddressGet].split(" "))
+                        
+                    else:
+                        if len(i[AddressGet][:-1]) == 1:
+                            Address[0].append(i[AddressGet])
+                        else:
+                            Address[0].append(i[AddressGet][:-1])
+                        Address[1].append(i[AddressGet])
+
+                Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
+                return Address
+            
+            elif AddressGet == FIND_ROAD:
+                for i in AddressList:
+                    m = re.search('\d+',i[AddressGet])
+                    if m != None:
+                        if m.start():
+                            Address[0].append(i[AddressGet][:m.start()])
+                    else:
+                        Address[0].append(i[AddressGet][:-1])
+                    Address[1].append(i[AddressGet])
+                Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
+                return Address
+
             else:
-                RorNList=list(set([i[AddressGet] for i in AddressList]))
-                return RorNList
+                Address[0]=list(set([i[AddressGet] for i in AddressList]))
+                return Address
 
 
 
@@ -102,4 +173,4 @@ class AddressDB:
     '''
 
 a = AddressDB()
-print(a.getAdressList())
+print(a.getAdressList(Find="성산중앙로",AddressNum=FIND_ROAD,AddressGet=FIND_ROAD))
