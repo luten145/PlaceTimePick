@@ -22,10 +22,10 @@ class MainEngine:
         pass
 
     def jsonHandler(self,data):
-        j = Engine1(self.mUIManager)
-        j.jsonHandler(data)
+        #j = Engine1(self.mUIManager)
+        #j.jsonHandler(data)
         #Engine2(self.mUIManager).jsonHandler(data)
-        #Engine3(self.mUIManager).jsonHandler(data)
+        Engine3(self.mUIManager).jsonHandler(data)
         pass
 
     pass

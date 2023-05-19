@@ -10,7 +10,7 @@ FIND_NUM=10
 
 class AddressDB:
     def __init__(self):
-        self.f = open("PythonSource/Util/Address.txt", "r", encoding="utf-8")
+        self.f = open("../Util/Address.txt", "r", encoding="utf-8")
         self.AddressList=[i.split("|") for i in self.f.readlines()]
         self.f.close()
 
