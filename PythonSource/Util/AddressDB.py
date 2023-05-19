@@ -74,6 +74,17 @@ class AddressDB:
                 Address[0]=list(set([i[AddressGet] for i in AddressList if Find in i[AddressNum]]))
                 return Address
             
+            elif AddressGet == FIND_ROAD_NUM:
+                for i in AddressList:
+                    if Find in i[AddressNum]:
+                        m = re.search('\d+',i[FIND_ROAD])
+                        if m != None:
+                            if m.start():
+                                Address[0].append(i[FIND_ROAD][m.start():m.end()])
+                                Address[1].append(i[FIND_ROAD][m.start():])
+                Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
+                return Address
+            
             
 
         elif Find == 0:
@@ -122,6 +133,17 @@ class AddressDB:
 
             elif AddressGet == FIND_NUM:
                 Address[0]=list(set([i[AddressGet] for i in AddressList]))
+                return Address
+            
+            elif AddressGet == FIND_ROAD_NUM:
+                for i in AddressList:
+                    if Find in i[AddressNum]:
+                        m = re.search('\d+',i[FIND_ROAD])
+                        if m != None:
+                            if m.start():
+                                Address[0].append(i[FIND_ROAD][m.start():m.end()])
+                                Address[1].append(i[FIND_ROAD][m.start():])
+                Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
                 return Address
 
 
@@ -177,3 +199,4 @@ class AddressDB:
 
 a = AddressDB()
 print(a.getAdressList(Find="강동구",AddressNum=FIND_DISTRICT,AddressGet=FIND_ROAD))
+print(a.getAdressList(Find="강동구",AddressNum=FIND_DISTRICT,AddressGet=FIND_ROAD_NUM))
