@@ -88,7 +88,7 @@ class Engine1:
             logUtil.Log(TAG, "-------------------")
             logUtil.Log(TAG, "라인 수 : " + str(currentLine))
             logUtil.Log(TAG, "검색한 단어 : " + scarchResult.word)
-            logUtil.Log(TAG, "단어의 뜻 : " + scarchResult.definition)
+            logUtil.Log(TAG, "단어의 뜻 : " + scarchResult.addr)
             logUtil.Log(TAG, "-------------------")
             self.setScore(currentLine, scarchResult)
         else:
@@ -100,7 +100,7 @@ class Engine1:
                 if data.word.find(i) != -1:
                     scoreTable[line][j] +=1
 
-                if data.definition.find(i) != -1:
+                if data.addr.find(i) != -1:
                     scoreTable[line][j] +=1
 
     def resultPrint(self,currentLine,data):

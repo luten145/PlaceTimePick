@@ -8,6 +8,7 @@ from PythonSource.UI import UIMain
 from PythonSource.Engine.Engine1 import Engine1
 from PythonSource.Engine.Engine2 import Engine2
 from PythonSource.Engine.Engine3 import Engine3
+from PythonSource.Engine.Engine4 import Engine4
 TAG = "MainManager"
 kkma = Kkma()
 
@@ -27,7 +28,8 @@ class MainEngine:
         #j = Engine2(self.mUIManager)
         #j.jsonHandler(data)
         #Engine2(self.mUIManager).jsonHandler(data)
-        Engine3(self.mUIManager).jsonHandler(data)
+        #Engine3(self.mUIManager).jsonHandler(data)
+        Engine4().jsonHandler(data)
         pass
 
     pass

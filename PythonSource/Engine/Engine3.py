@@ -9,21 +9,30 @@ from PythonSource.Util import StringUtil
 import PythonSource.Util.DicApi as dicApi
 from PythonSource.UI import UIMain
 from PythonSource.UI.UIListener import UIEventListener
+from PythonSource.Util import AddressApi
 
 TAG = "Engine3"
 
 
 class Address:
     def __init__(self):
-        self.name = "NAME"
+        self.city = "CITY"
+        self.dist = "DIST"
+        self.road = "ROAD"
+        self.num = "NUM"
+
+class AddressPiece:
+    def __init__(self,name,count):
+        self.name = name
         self.line = []
-        self.count = 0
+        self.count = count
 
 
 class Window:
-    def __init__(self):
-        self.line = 0
+    def __init__(self,line,count):
+        self.line = line
         self.count = 0
+
 
 
 class Engine3:
@@ -32,6 +41,13 @@ class Engine3:
         self.mUIManager = uiManager
         self.addressDB = AddressDB.AddressDB()
         self.windows = []
+
+        self.address = Address()
+        self.city = []
+        self.district = []
+        self.road = []
+
+
         pass
 
     def jsonHandler(self, data):  # data is json File
@@ -58,64 +74,20 @@ class Engine3:
 
     def dataHandler(self, textList):
 
-        cityList = self.getCity(textList)  # 시 후보군
-        for i in cityList:
+        self.city = self.getCity(textList)
+
+        for i in self.city:
             logUtil.Log(TAG,  "CITY : " + str(i.__dict__))
 
 
 
-
-    pass
-
-    def getCity(self, textList:list): # 데이터에서 시를 찾습니다.
-        tag = "getCity"
-
-        regionPattern = self.addressDB.getAdressList()[0]  # All city list
-
-        res = []
-        c = 0
-        for i in textList:
-            for j in regionPattern:
-                num = StringUtil.countPattern(i, j)
-                if num > 0:
-                    p = False
-                    t = False
-
-                    for g in self.windows:
-                        if g.line == c:
-                            g.count +=1
-                            t = True
-                    if t is False:
-                        o = Window()
-                        o.line = c
-                        o.count +=1
-                        self.windows.append(o)
-
-
-
-                    for k in res:
-                        if(k.name == j):
-                            k.line.append(c)
-                            k.count += 1
-                            p = True
-
-                    if p is False :
-                        a = Address()
-                        a.name = j
-                        a.count += 1
-                        a.line.append(c)
-                        res.append(a)
-
-            c+=1
-        la = sorted(res,key=lambda res : res.count,reverse=True)
-
-        districtList = self.getDistrict(textList, la)  # 시,군,구를 후보군
+        districtList = self.getDistrict(textList, self.city)  # 시,군,구를 후보군
         for i in districtList:
             logUtil.Log(TAG,  "DISTRICT : " + str(i.__dict__))
 
-        townList = self.getTown(textList, districtList)  # 동 후보군
-        for i in townList:
-            logUtil.Log(TAG,  "TOWN : " + str(i.__dict__))
+        #townList = self.getTown(textList, districtList)  # 동 후보군
+        #for i in townList:
+        #    logUtil.Log(TAG,  "TOWN : " + str(i.__dict__))
 
         roadList = self.getRoad(textList, districtList)  # 도로명 후보군
         for i in roadList:
@@ -126,7 +98,59 @@ class Engine3:
         for i in numList:
             logUtil.Log(TAG,  "NUM : " + str(i))
 
-        return la
+
+
+
+    pass
+
+    def getValidation(self):
+        sc = ""
+        sc += str(self.address.city)
+        sc += " "
+        sc += str(self.address.dist)
+        sc += " "
+        sc += str(self.address.road)
+        sc += " "
+        sc += str(self.address.num)
+
+        r = AddressApi.wordSearch(sc)
+        logUtil.Log(TAG,str(r.__dict__))
+        return r.addr != ""
+
+
+
+
+
+    def getCity(self, textList:list):
+        tag = "getCity"
+        regionPattern = self.addressDB.getAdressList()[0]  # All City List
+        res = []; c = 0
+        for i in textList:
+            for j in regionPattern:
+                num = StringUtil.countPattern(i, j)
+                if num > 0:
+                    p,t = False , False
+
+                    for g in self.windows:
+                        if g.line == c:
+                            g.count += num
+                            t = True
+
+                    if t is False:
+                        self.windows.append(Window(c,num))
+
+                    for k in res:
+                        if(k.name == j):
+                            k.line.append(c)
+                            k.count += num
+                            p = True
+
+                    if p is False :
+                        a = AddressPiece(j, num)
+                        a.line.append(c)
+                        res.append(a)
+            c+=1
+        return sorted(res,key=lambda res : res.count,reverse=True)
 
 
 
@@ -134,11 +158,21 @@ class Engine3:
         tag = "getDistrict"
 
         # 데이터에서 시를 찾습니다.
-        if cityList:
-            key = cityList[0].name
+        q = 0
+        key = ""
+        t = len(cityList)
+        if t == 1:
+            key = cityList[q].name
             logUtil.Log(tag, str(key))
             regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
+            logUtil.Log(tag,"Info : 1 city was found.")
+        elif t > 1:
+            key = cityList[q].name
+            logUtil.Log(tag, str(key))
+            regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
+            logUtil.Log(tag,"Info : Multiple cities were searched.")
         else:
+            logUtil.Log(tag,"Error! : Cannot find city -> Use all city list")
             a = self.addressDB.getAdressList()[0]  # All city list
             regionPattern = []
             for i in a:
@@ -146,58 +180,63 @@ class Engine3:
                 for j in b:
                     regionPattern.append(j)
 
+        self.address.city = key
+
         #logUtil.Log(tag, regionPattern)
 
-        res = []
-        c = 0
-        for i in textList:
-            if i is '':
-                continue
-            for j in regionPattern:
-                if j == '':
-                    continue
-                num = StringUtil.countPattern(i, j)
-                if num > 0:
-                    t = False
+        while True:
+            res = []; c = 0
+            for i in textList:
+                for j in regionPattern:
+                    num = StringUtil.countPattern(i, j)
+                    if num > 0:
+                        p,t = False , False
 
-                    for g in self.windows:
-                        if g.line == c:
-                            g.count +=1
-                            t = True
-                    if t is False:
-                        o = Window()
-                        o.line = c
-                        o.count +=1
-                        self.windows.append(o)
+                        for g in self.windows:
+                            if g.line == c:
+                                g.count += num
+                                t = True
 
-                    p = False
-                    for k in res:
-                        if(k.name == j):
-                            k.line.append(c)
-                            k.count += 1
-                            p = True
+                        if t is False:
+                            self.windows.append(Window(c,num))
 
-                    if p is False :
-                        a = Address()
-                        a.name = j
-                        a.count += 1
-                        a.line.append(c)
-                        res.append(a)
+                        for k in res:
+                            if(k.name == j):
+                                k.line.append(c)
+                                k.count += num
+                                p = True
 
-            c+=1
+                        if p is False :
+                            a = AddressPiece(j, num)
+                            a.line.append(c)
+                            res.append(a)
+                c+=1
+            if len(res) < 0 and t > q:
+                q+=1
+                key = cityList[q].name
+                logUtil.Log(tag, str(key))
+                regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
+                logUtil.Log(tag,"Info : Multiple cities were searched.")
 
-
+            else:
+                break;
         return sorted(res,key=lambda res : res.count,reverse=True)
 
     def getTown(self, textList, cityList):
         tag = " getTown"
 
         # 데이터에서 시를 찾습니다.
-        if cityList:
+        key = ""
+        t = len(cityList)
+        if t == 1:
             key = cityList[0].name
             logUtil.Log(tag, str(key))
             regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_DISTRICT, AddressDB.FIND_TOWN)[0]
+            logUtil.Log(tag,"Info : 1 district was found.")
+        elif t > 1:
+            logUtil.Log(tag,"Info : Multiple district were searched.")
         else:
+            logUtil.Log(tag,"Error! : Cannot find district -> Use all district list")
             a = self.addressDB.getAdressList()[0]  # All city list
             regionPattern = []
             for i in a:
@@ -205,201 +244,128 @@ class Engine3:
                 for j in b:
                     regionPattern.append(j)
 
+        self.address.dist = key
 
-        res = []
-        c = 0
+        res = []; c = 0
         for i in textList:
             for j in regionPattern:
-                if j == '':
-                    continue
                 num = StringUtil.countPattern(i, j)
                 if num > 0:
-                    t = False
+                    p,t = False , False
+
                     for g in self.windows:
                         if g.line == c:
-                            g.count +=1
+                            g.count += num
                             t = True
-                    if t is False:
-                        o = Window()
-                        o.line = c
-                        o.count +=1
-                        self.windows.append(o)
 
-                    p = False
+                    if t is False:
+                        self.windows.append(Window(c,num))
+
                     for k in res:
                         if(k.name == j):
                             k.line.append(c)
-                            k.count += 1
+                            k.count += num
                             p = True
 
                     if p is False :
-                        a = Address()
-                        a.name = j
-                        a.count += 1
+                        a = AddressPiece(j, num)
                         a.line.append(c)
                         res.append(a)
-
             c+=1
-
         return sorted(res,key=lambda res : res.count,reverse=True)
 
     def getRoad(self, textList, cityList):
         tag = " getRoad"
 
+
         # 데이터에서 시를 찾습니다.
-        if cityList:
+        key = ""
+        t = len(cityList)
+        if t == 1:
             key = cityList[0].name
             logUtil.Log(tag, str(key))
-            regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[1]
+            regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[0]
+            logUtil.Log(tag,"Info : 1 district was found.")
+        elif t > 1:
+            key = cityList[0].name
+            logUtil.Log(tag, str(key))
+            regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[0]
+            logUtil.Log(tag,"Info : Multiple district were searched.")
         else:
+            logUtil.Log(tag,"Error! : Cannot find district -> Use all district list")
             a = self.addressDB.getAdressList()[0]  # All city list
             regionPattern = []
             for i in a:
-                b= self.addressDB.getAdressList(i, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[1]
+                b= self.addressDB.getAdressList(i, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[0]
                 for j in b:
                     regionPattern.append(j)
 
+        self.address.dist = key
 
-        res = []
-        c = 0
+        res = []; c = 0
         for i in textList:
             for j in regionPattern:
                 num = StringUtil.countPattern(i, j)
                 if num > 0:
-                    t = False
+                    p,t = False , False
 
                     for g in self.windows:
                         if g.line == c:
-                            g.count +=1
+                            g.count += num
                             t = True
-                    if t is False:
-                        o = Window()
-                        o.line = c
-                        o.count +=1
-                        self.windows.append(o)
 
-                    p = False
+                    if t is False:
+                        self.windows.append(Window(c,num))
+
                     for k in res:
                         if(k.name == j):
                             k.line.append(c)
-                            k.count += 1
+                            k.count += num
                             p = True
 
                     if p is False :
-                        a = Address()
-                        a.name = j
-                        a.count += 1
+                        a = AddressPiece(j, num)
                         a.line.append(c)
                         res.append(a)
-
             c+=1
-
         return sorted(res,key=lambda res : res.count,reverse=True)
 
     def extract_numbers(self,text):
         return re.findall(r'\d+(?:-\d+)?', text)
 
     def getNum_2(self, textList, cityList):
-
         tag = "getNum_2"
 
+        key = ""
+        t = len(cityList)
+        # 데이터에서 시를 찾습니다.
+        if t == 1:
+            key = cityList[0].name
+            logUtil.Log(tag, str(key))
+            logUtil.Log(tag,"Info : 1 road was found.")
+        elif t > 1:
+            key = cityList[0].name
+            logUtil.Log(tag,"Info : Multiple road were searched.")
+        else:
+            logUtil.Log(tag,"Error! : Cannot find road -> Search End")
+
+        self.address.road = key
         self.windows = sorted(self.windows,key= lambda windows : windows.count , reverse = True)
 
 
-        res = []
-        c = 0
         l = self.windows[0].line
         numbers = self.extract_numbers(textList[l])
         print(numbers)
+
+
+        key = ""
+        # 데이터에서 시를 찾습니다.
+        if numList:
+            key = str(numList[0])
+
+        self.address.num = key
+
+        logUtil.Log(TAG,str(self.address.__dict__))
+        print(self.getValidation())
+
         return numbers
-
-    def getRoadNum(self, textList, cityList):
-        tag = "getRoadNum"
-
-        # 데이터에서 시를 찾습니다.
-        if cityList:
-            key = cityList[0].name
-            logUtil.Log(tag, str(key))
-            regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_ROAD, AddressDB.FIND_ROAD_NUM)[0]
-        else:
-            a = self.addressDB.getAdressList()[0]  # All city list
-            regionPattern = []
-            for i in a:
-                b= self.addressDB.getAdressList(i, AddressDB.FIND_ROAD, AddressDB.FIND_ROAD_NUM)[0]
-                for j in b:
-                    regionPattern.append(j)
-
-
-
-
-        res = []
-        c = 0
-        for i in textList:
-            for j in regionPattern:
-                num = StringUtil.countPattern(i, j)
-                if num > 0 and c == self.windows[0].line:
-                    p = False
-                    for k in res:
-                        if(k.name == j):
-                            k.line.append(c)
-                            k.count += 1
-                            p = True
-
-                    if p is False :
-                        a = Address()
-                        a.name = j
-                        a.count += 1
-                        a.line.append(c)
-                        res.append(a)
-
-            c+=1
-
-
-        return sorted(res,key=lambda res : res.count,reverse=True)
-
-    def getNum(self, textList, cityList):
-
-        tag = "getNum"
-        self.windows = sorted(self.windows,key= lambda windows : windows.count , reverse = True)
-        for o in self.windows:
-            logUtil.Log(tag,o.__dict__)
-
-        # 데이터에서 시를 찾습니다.
-        if cityList:
-            key = cityList[0].name
-            logUtil.Log(tag, str(key))
-            regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_ROAD, AddressDB.FIND_NUM)[0]
-
-        else :
-            a = self.addressDB.getAdressList()[0]  # All city list
-            regionPattern = []
-            for i in a:
-                b = self.addressDB.getAdressList(i, AddressDB.FIND_ROAD, AddressDB.FIND_NUM)[0]
-                for j in b:
-                    regionPattern.append(j)
-
-
-
-        res = []
-        c = 0
-        for i in textList:
-            for j in regionPattern:
-                num = StringUtil.countPattern(i, j)
-                if num > 0 and c == self.windows[0].line:
-                    p = False
-                    for k in res:
-                        if(k.name == j):
-                            k.line.append(c)
-                            k.count += 1
-                            p = True
-
-                    if p is False :
-                        a = Address()
-                        a.name = j
-                        a.count += 1
-                        a.line.append(c)
-                        res.append(a)
-
-            c+=1
-
-        return sorted(res,key=lambda res : res.count,reverse=True)

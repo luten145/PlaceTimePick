@@ -1,5 +1,5 @@
 def countPattern(string, pattern):
-    if string == '\0':
+    if string == '' or pattern == '':
         return 0
     count = string.count(pattern)
 

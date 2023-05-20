@@ -9,6 +9,7 @@ from PythonSource.UI import UIMain
 from PythonSource.Util import AddressDB
 from PythonSource.Util import StringUtil
 from PythonSource.Engine import Engine3
+from PythonSource.Engine import Engine4
 
 
 class Address:
@@ -97,5 +98,5 @@ a.append("서도의 스: 탑:")
 a.append("']")
 
 
-b = Engine3.Engine3(None)
+b = Engine4.Engine4()
 b.dataHandler(a)
