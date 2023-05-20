@@ -10,7 +10,7 @@ FIND_NUM=10
 
 class AddressDB:
     def __init__(self):
-        self.f = open("./Util/Address.txt", "r", encoding="utf-8")
+        self.f = open("PythonSource/Util/Address.txt", "r", encoding="utf-8")
         self.AddressList=[i.split("|") for i in self.f.readlines()]
         self.f.close()
         pass
@@ -23,16 +23,17 @@ class AddressDB:
 
     def SearchAddress(self,AddressList, Find=0, AddressNum=1, AddressGet=1):
         Address=[[]for i in range(2)]
-        if(Find == '전북'):
-            Find = '전라북도'
         if Find != 0:
             if AddressGet == FIND_CITY:
                 for i in AddressList:
                     if Find in i[AddressNum]:
                         Address[0].append(i[AddressGet][0:2]); Address[1].append(i[AddressGet])
+                        if len(i[AddressNum]) == 4:
+                            Address[0].append(i[AddressNum][0:1]+i[AddressNum][2:3]); Address[1].append(i[AddressGet])
+                    elif Find in i[AddressNum][0:1]+i[AddressNum][2:3]:
+                        Address[0].append(i[AddressGet][0:2]); Address[1].append(i[AddressGet])
+                        Address[0].append(i[AddressNum][0:1]+i[AddressNum][2:3]); Address[1].append(i[AddressGet])
                 Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
-                Address[0].append('전북')
-                Address[0].append('전남')
                 return Address
             
             elif AddressGet == FIND_DISTRICT or AddressGet == FIND_TOWN:
@@ -94,10 +95,10 @@ class AddressDB:
         elif Find == 0:
             if AddressGet == FIND_CITY:
                 for i in AddressList:
+                    if len(i[AddressNum]) == 4:
+                        Address[0].append(i[AddressNum][0:1]+i[AddressNum][2:3]); Address[1].append(i[AddressGet])
                     Address[0].append(i[AddressGet][0:2]); Address[1].append(i[AddressGet])
                 Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
-                Address[0].append('전북')
-                Address[0].append('전남')
                 return Address
             
             elif AddressGet == FIND_DISTRICT or AddressGet == FIND_TOWN:
@@ -165,7 +166,7 @@ class AddressDB:
     # ODO 3 : 시 군구 에서 '성남시 수정', '성남시 분당' 같은 경우 성남, 분당 , 성남, 수정으로 나누어서 리스트 만들기
     # ODO 4 : 도로명의 경우 뒷 숫자 빼고 리스트 말들고 숫자는 따로 리스트 얻는함수 만들기
     # ODO 5 : 서울입력 -> 서울특별시 출력되는 함수 만들기
-    # TODO 5 : 전북 전남 경북 경남 안됨 => 전북,전남 입력시 전라북도,전라남도 나와야 하고 CITY 출력 시 전라북도 => 전라,전북 모두 나오도록 하기
+    # ODO 5 : 전북 전남 경북 경남 안됨 => 전북,전남 입력시 전라북도,전라남도 나와야 하고 CITY 출력 시 전라북도 => 전라,전북 모두 나오도록 하기
     # TODO 6 : 지번정보 검색 불가 => 지번도 사용 가능하도록 하기 + 지번과 도로명주소는 동시에 검색되면 안됨 인수로 이를 구분하도록 하기
 
 
@@ -206,6 +207,5 @@ class AddressDB:
     '''
 
 a = AddressDB()
-print(a.getAdressList(Find="강동구",AddressNum=FIND_DISTRICT,AddressGet=FIND_ROAD))
-print(a.getAdressList(Find="강동구",AddressNum=FIND_DISTRICT,AddressGet=FIND_ROAD_NUM))
-print(a.getAdressList(Find="서구",AddressNum=FIND_DISTRICT,AddressGet=FIND_ROAD)[0])
+print(a.getAdressList(Find="전라",AddressNum=FIND_CITY,AddressGet=FIND_CITY))
+print(a.getAdressList(AddressGet=FIND_CITY))
