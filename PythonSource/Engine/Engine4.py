@@ -34,6 +34,11 @@ class Num(Address):
     def __init__(self,name,count):
         super().__init__(name,count)
 
+
+class Build(Address):
+    def __init__(self,name,count):
+        super().__init__(name,count)
+
 class Window:
     def __init__(self,line,count):
         self.line = line
@@ -58,6 +63,7 @@ class Engine4:
         self.tree = Addr()
         self.addressDB = AddressDB.AddressDB()
         self.addrScore = []
+        self.buildList = []
 
     def jsonHandler(self, data):  # data is json File
         Log(TAG, "JsonHandler")  # Log
@@ -71,6 +77,11 @@ class Engine4:
         return str(text).split('\\n')  # 한줄씩 나눠서 리스트로 만들기
 
     def dataHandler(self, textList):
+        self.getBuilding(textList)
+
+        for i in self.buildList:
+            Log(TAG,i.__dict__)
+
         self.getCity(textList)
         Log(TAG,"Start")
         self.printTree()
@@ -171,6 +182,38 @@ class Engine4:
 
         pass
 
+    def extract_words(self,text, keyword):
+        words = text.split()
+        result = []
+        for word in words:
+            if keyword in word:
+                result.append(word)
+        return result
+
+    def getBuilding(self, textList):
+        placePattern = ["홀", "웨딩", "장례","병원"]
+
+        currentLine = 0
+        for textLine in textList:
+            wo = []
+            for i in placePattern:
+                wo+=self.extract_words(textLine,i)
+
+            wordComplete = False
+            for word in wo:
+                for s in self.buildList:
+                    if(word == s.name):
+                        s.count+=1
+                        s.line.append(currentLine)
+                        wordComplete = True
+                if not wordComplete:
+                    b = Build(word,1)
+                    b.line.append(currentLine)
+                    self.buildList.append(b)
+
+            currentLine+=1
+
+        pass
 
     def getCity(self, textList):
         tag = "getCity"
