@@ -139,7 +139,7 @@ class Engine4:
             city.score = city.count + 8*1
 
             if(city.name != "None"):
-                cityName = self.addressDB.getAdressList(Find=city.name, AddressNum=AddressDB.FIND_CITY, AddressGet=AddressDB.FIND_CITY)[1][0]
+                cityName = self.addressDB.getAdressList(Find=city.name, AddressNum=AddressDB.ROAD_FIND_CITY, AddressGet=AddressDB.ROAD_FIND_CITY)[1][0]
             else :
                 cityName = ""
 
@@ -246,7 +246,6 @@ class Engine4:
         tag = "getDistrict"
 
         # 모든 트리에 대하여 탐색을 시도합니다.
-
         if len(self.tree.cities) == 0:
             a = City("None",0)
             self.tree.cities.append(a)
@@ -254,15 +253,18 @@ class Engine4:
 
         for city in self.tree.cities:
             regionList = []
-            key = city.name
-            regionList = self.addressDB.getAdressList(key, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
+            if(city.name != "None"):
+                key = self.addressDB.getAdressList(Find=city.name, AddressNum=AddressDB.ROAD_FIND_CITY, AddressGet=AddressDB.ROAD_FIND_CITY)[1][0]
+            else:
+                key = "None"
+            regionList = self.addressDB.getAdressList(key, AddressDB.ROAD_FIND_CITY, AddressDB.ROAD_FIND_DISTRICT)[0]
             currentLine = 0
 
             if(city.name == "None"):
                 Log(tag,"Error! : Cannot find city -> Use all city list")
                 a = self.addressDB.getAdressList()[0]  # All city list
                 for i in a:
-                    b= self.addressDB.getAdressList(i, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
+                    b= self.addressDB.getAdressList(i, AddressDB.ROAD_FIND_CITY, AddressDB.ROAD_FIND_DISTRICT)[0]
                     for j in b:
                         regionList.append(j)
 
@@ -295,6 +297,7 @@ class Engine4:
         tag = "getRoad"
 
         # 모든 트리에 대하여 탐색을 시도합니다.
+        # 도로명 먼저 탐색합니다.
         for city in self.tree.cities: # city 트리입니다.
             for dist in city.dists: # dict 트리입니다.
 
@@ -327,7 +330,10 @@ class Engine4:
 
                 key = dist.name
                 Log(tag,key)
-                regionList = self.addressDB.getAdressList(key, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[0]
+
+                regionList = self.addressDB.getAdressList(key, AddressDB.ROAD_FIND_DISTRICT, AddressDB.ROAD_FIND_ROAD)[0]
+                regionList += self.addressDB.getAdressList(key, AddressDB.OLD_FIND_DISTRICT, AddressDB.OLD_FIND_TOWN,AddressDB.OLD_ADDRESS)[0]
+
 
                 currentLine = 0
 
@@ -335,8 +341,6 @@ class Engine4:
                     for regionKey in regionList:
                         num = StringUtil.countPattern(textLine.str, regionKey)
                         if num > 0:  # 같은것이 있습니다.
-
-
                             roadComplete = False
                             for road in dist.roads: # 트리 안에 있는 Dist 리스트 탐색
                                 if(road.name == regionKey):  # 현재 비교하는 지역이 이미 있는경우

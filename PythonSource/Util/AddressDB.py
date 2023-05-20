@@ -20,16 +20,16 @@ OLD_FIND_VILLAGE=7
 
 class AddressDB:
     def __init__(self):
-        self.f = open("PythonSource/Util/RoadAddress.txt", "r", encoding="utf-8")
+        self.f = open("./Util/RoadAddress.txt", "r", encoding="utf-8")
         self.RoadAddressList=[i.split("|") for i in self.f.readlines()]
         self.f.close()
-        self.f = open("PythonSource/Util/OldAddress.txt", "r", encoding="utf-8")
+        self.f = open("./Util/OldAddress.txt", "r", encoding="utf-8")
         self.OldAddressList=[i.split("|") for i in self.f.readlines()]
         self.f.close()
         pass
 
 
-    def getAdressList(self,Type=0,Find=0, AddressNum=1, AddressGet=1):
+    def getAdressList(self,Find=0, AddressNum=1, AddressGet=1,Type=0):
         if Type == ROAD_ADDRESS:
             l = self.SearchAddress(self.RoadAddressList,Type,Find,AddressNum,AddressGet)
         elif Type == OLD_ADDRESS:
@@ -325,7 +325,4 @@ class AddressDB:
     '''
 
 a = AddressDB()
-print(a.getAdressList(Type=ROAD_ADDRESS,Find="전라",AddressNum=ROAD_FIND_CITY,AddressGet=ROAD_FIND_CITY))
-print(a.getAdressList(Type=ROAD_ADDRESS,AddressGet=ROAD_FIND_CITY))
-print(a.getAdressList(Type=OLD_ADDRESS,Find="전라",AddressNum=OLD_FIND_CITY,AddressGet=OLD_FIND_CITY))
-print(a.getAdressList(Type=OLD_ADDRESS,AddressGet=OLD_FIND_VILLAGE))
+print(a.getAdressList(Type=ROAD_ADDRESS,Find="전남",AddressNum=ROAD_FIND_CITY,AddressGet=ROAD_FIND_DISTRICT))
