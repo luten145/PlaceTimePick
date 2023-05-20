@@ -10,10 +10,9 @@ FIND_NUM=10
 
 class AddressDB:
     def __init__(self):
-        self.f = open("../Util/Address.txt", "r", encoding="utf-8")
+        self.f = open("./Util/Address.txt", "r", encoding="utf-8")
         self.AddressList=[i.split("|") for i in self.f.readlines()]
         self.f.close()
-
         pass
 
     def getAdressList(self,Find=0, AddressNum=1, AddressGet=1):
@@ -200,3 +199,4 @@ class AddressDB:
 a = AddressDB()
 print(a.getAdressList(Find="강동구",AddressNum=FIND_DISTRICT,AddressGet=FIND_ROAD))
 print(a.getAdressList(Find="강동구",AddressNum=FIND_DISTRICT,AddressGet=FIND_ROAD_NUM))
+print(a.getAdressList(Find="서구",AddressNum=FIND_DISTRICT,AddressGet=FIND_ROAD)[0])
