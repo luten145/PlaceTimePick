@@ -8,9 +8,9 @@ from PythonSource.UI import UIMain
 from PythonSource.Util import AddressDB
 from PythonSource.Util import StringUtil
 
-TAG = "Engine2"
+TAG = "Engine4"
 
-class Engine2:
+class Engine4:
     # TODO : migration to individual file
     def __init__(self,uiManager : UIEventListener):
         self.mUIManager = uiManager
@@ -129,33 +129,21 @@ class Engine2:
         #초기화
         year, month, day, week, hour, minute = 0, 0, 0, 0, 0, 0
 
-        # 년월일 추출 - 2021년 10월 21일 or 2021.10.21 or 2021/10/21 or 2021-10-21
-        ymdPattern = r'(\d{4})(?:년|\.|/|-)(\d{1,2})(?:월|\.|/|-)(\d{1,2})?일?'
-        ymdStr = re.search(ymdPattern, text_str)
-        if ymdStr:
-            ymdEndIndex = ymdStr.end()
-            ymdNextText = text_str[ymdEndIndex:]
-            year = int(ymdStr.group(1))
-            month = int(ymdStr.group(2))
-            day = int(ymdStr.group(3))
+        combined_pattern = r"(\d{4})(?:년|\.|/|-)(\d{1,2})(?:월|\.|/|-)(\d{1,2})?일?\(?(월요일|화요일|수요일|목요일|금요일|토요일|일요일|월|화|수|목|금|토|일)\)?(?:오후|오전|낮)?(\d{1,2})(?::|시)(\d{1,2})?(?:분)?"
 
-        # 요일 추출 - 월요일 or (월) or 월
-        #weekPattern = r"(월요일|화요일|수요일|목요일|금요일|토요일|일요일|\((월|화|수|목|금|토|일)\)|월|화|수|목|금|토|일)"
-        weekPattern = r"\(?(월요일|화요일|수요일|목요일|금요일|토요일|일요일|월|화|수|목|금|토|일)\)?"
-        weekStr = re.search(weekPattern, ymdNextText)
-        if weekStr:
-            weekEndIndex = weekStr.end()
-            weekNextText = text_str[weekEndIndex:]
-            week = weekStr.group(1)[0]
+        date_list = re.findall(combined_pattern, text_str)
 
-        # 시간 추출 - (오전 or 오후 or 낮) + 10시 20분 or 10:20
-        timePattern = r"(?:오후|오전|낮)?(\d{1,2})(?::|시)(\d{1,2})?(?:분)?"
-        timeStr = re.search(timePattern, weekNextText)
-        if timeStr:
-            hour = int(timeStr.group(1))
-            if '오후' in str(timeStr):
-                hour += 12
-            minute = int(timeStr.group(2) or 0)
+        # 결과 리스트를 정리하여 None 처리
+        processed_date_list = [(
+            year if year else 0,
+            month if month else 0,
+            day if day else 0,  # day가 None일 경우 None 처리
+            week if week else None,
+            hour if hour else 0,
+            minute if minute else 0  # minute이 None일 경우 None 처리
+        ) for year, month, day, week, hour, minute in date_list]
+
+        print(processed_date_list)
 
         #print("장소: ", place_list)
         """print("시/도: ", region0, type(region0))

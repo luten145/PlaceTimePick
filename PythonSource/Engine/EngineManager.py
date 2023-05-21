@@ -8,6 +8,7 @@ from PythonSource.UI import UIMain
 from PythonSource.Engine.Engine1 import Engine1
 from PythonSource.Engine.Engine2 import Engine2
 from PythonSource.Engine.Engine3 import Engine3
+from PythonSource.Engine.Engine4 import Engine4
 TAG = "MainManager"
 kkma = Kkma()
 
@@ -20,14 +21,15 @@ class MainEngine:
         pass
 
     def tkinterHandler(self, data):
-        Engine2(self.mUIManager).tkinterHandler(data)
+        Engine4(self.mUIManager).tkinterHandler(data)
         pass
 
     def jsonHandler(self,data):
-        j = Engine2(self.mUIManager)
+        j = Engine4(self.mUIManager)
         j.jsonHandler(data)
-        Engine2(self.mUIManager).jsonHandler(data)
+        #Engine2(self.mUIManager).jsonHandler(data)
         #Engine3(self.mUIManager).jsonHandler(data)
+        Engine4(self.mUIManager).jsonHandler(data)
         pass
 
     pass
