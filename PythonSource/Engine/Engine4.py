@@ -12,6 +12,10 @@ class Address:
         self.line = []
         self.count = count
         self.score = 0
+        self.result = ""
+        self.resultOld = ""
+        self.end = False
+
 
 class Addr():
     def __init__(self):
@@ -35,8 +39,7 @@ class Road(Address):
 class Num(Address):
     def __init__(self,name,count):
         super().__init__(name,count)
-        self.result = ""
-        self.resultOld = ""
+
 
 
 class Build(Address):
@@ -79,6 +82,7 @@ class Engine4:
         self.addrScore = []
         self.buildList = []
         self.addressApi = AddressApi.AddressApi()
+        self.ENABLE_HARD_SEARCH = False
 
     def jsonHandler(self, data):  # data is json File
         Log(TAG, "JsonHandler")  # Log
@@ -121,11 +125,23 @@ class Engine4:
         self.printTree()
         Log(TAG,"End")
 
-        self.sortTree()
+        self.sortTree(textList)
 
         self.addrScore = sorted(self.addrScore,key= lambda  ad :ad.score,reverse= True)
+        hard = True
         for i in self.addrScore:
             Log(TAG,str(i.__dict__))
+            if i.result != '':
+                hard = False
+
+        if hard:
+            self.ENABLE_HARD_SEARCH = True
+            Log(TAG,"Hard Search Enabled")
+            self.sortTree(textList)
+            self.addrScore = sorted(self.addrScore,key= lambda  ad :ad.score,reverse= True)
+            for i in self.addrScore:
+                Log(TAG,str(i.__dict__))
+
 
 
 
@@ -137,6 +153,17 @@ class Engine4:
                 o.otherInfo.append(textList[j])
                 Log(TAG,"추가정보 : "+str(textList[j]))
         self.mUIManager.onSetDataEvent(0,o)
+
+        # 상위 5개만
+        l = 0
+        for i in self.addrScore:
+            Log(TAG,str(i.__dict__))
+            if l > 5:
+                break
+            l+=1
+
+
+
 
     pass
 
@@ -155,7 +182,7 @@ class Engine4:
 
         pass
 
-    def sortTree(self):
+    def sortTree(self,textList):
         # 점수 산정 방식
         # 일반 점수 : count 순 , 트리 존재 함 : 8점
 
@@ -179,18 +206,75 @@ class Engine4:
                 distName = dist.name
                 dAddrStr = str(cityName) + " " + str(distName)
                 Log(TAG,"   " + dAddrStr+" Score : "+ str(dist.score))
+
+                if dist.end and self.ENABLE_HARD_SEARCH:
+                    r = self.addressApi.wordSearch(dAddrStr)
+                    if r.resultCount > 0:
+
+                        a = StringUtil.similarity(r.word,r.addr[0])
+                        b = StringUtil.similarity(r.word,r.addrOld[0])
+
+                        # 특정 키워트 추가점수
+                        placePattern = ["홀", "웨딩", "장례", "병원"]
+                        for i in placePattern:
+                            if StringUtil.containsSubstring(r.addr[0],i) or StringUtil.containsSubstring(r.addrOld[0],i):
+                                dist.score += 50
+
+                        if a>b:
+                            dist.score += a
+                        else:
+                            dist.score += b
+
+                        dist.result = r.addr[0]
+                        dist.resultOld = r.addrOld[0]
+
+                        dist.score += 16
+                        pass
                 dS = ScoreTable(dAddrStr,dist.score)
+                dS.result = dist.result
+                dS.resultOld = dist.resultOld
                 self.addrScore.append(dS)
+
+
 
                 for road in dist.roads:
                     roadName = road.name
                     road.score = city.score+dist.score+road.count + 8*2
                     rAddrStr = str(cityName) + " " + str(distName) + " " +str(roadName)
                     Log(TAG,"   " +"   " + rAddrStr+" Score : "+ str(road.score))
+
+                    if road.end and self.ENABLE_HARD_SEARCH:
+                        r = self.addressApi.wordSearch(rAddrStr)
+                        if r.resultCount > 0:
+
+                            a = StringUtil.similarity(r.word,r.addr[0])
+                            b = StringUtil.similarity(r.word,r.addrOld[0])
+                            if a>b:
+                                road.score += a
+                            else:
+                                road.score += b
+
+                            # 특정 키워트 추가점수
+                            placePattern = ["홀", "웨딩", "장례", "병원"]
+                            for i in placePattern:
+                                if StringUtil.containsSubstring(r.addr[0],i) or StringUtil.containsSubstring(r.addrOld[0],i):
+                                    road.score += 50
+
+                            road.result = r.addr[0]
+                            road.resultOld = r.addrOld[0]
+
+                            road.score += 16
+                            pass
+
                     rS = ScoreTable(rAddrStr,road.score)
+                    rS.result = road.result
+                    rS.resultOld = road.resultOld
                     self.addrScore.append(rS)
 
                     for num in road.nums:
+                        if self.ENABLE_HARD_SEARCH == False and num.end == True:
+                            # 고급검색이 꺼져있으면 엔드 플래그가 있는것을 검색하지 않고 넘깁니다.
+                            break
                         num.score = city.score+dist.score+road.score+num.count + 8*3
                         nAddrStr = str(cityName) + " " + str(distName) + " " +str(roadName) +" " + num.name
                         r = self.addressApi.wordSearch(nAddrStr)
@@ -198,6 +282,13 @@ class Engine4:
 
                             a = StringUtil.similarity(r.word,r.addr[0])
                             b = StringUtil.similarity(r.word,r.addrOld[0])
+
+                            # 특정 키워트 추가점수
+                            placePattern = ["홀", "웨딩", "장례", "병원"]
+                            for i in placePattern:
+                                if StringUtil.containsSubstring(r.addr[0],i) or StringUtil.containsSubstring(r.addrOld[0],i):
+                                    num.score += 50
+
                             if a>b:
                                 num.score += a
                             else:
@@ -309,7 +400,7 @@ class Engine4:
                         regionList.append(j)
 
 
-
+            # 윈도우에서 두번 나와야 함
             for textLine in textList:
                 for regionKey in regionList:
                     num = StringUtil.countPattern(textLine, regionKey)
@@ -320,12 +411,26 @@ class Engine4:
                             if(dist.name == regionKey):  # 현재 비교하는 지역이 이미 있는경우
                                 dist.count += num  # 카운트 증가 (Scoring)
                                 dist.line.append(currentLine)  # 발견된 라인 저장 (윈도우 탐색용)
-                                distComplete = True;
+                                distComplete = True
 
                         if not distComplete:
+                            mDist = Dist(regionKey,num) # 새 객체 생성
+                            mDist.line.append(currentLine)
                             dist = Dist(regionKey,num) # 새 객체 생성
                             dist.line.append(currentLine)
+                            for i in self.buildList:
+                                for j in i.line:
+                                    a = StringUtil.generateCombinations(textList[j])
+                                    for b in a:
+
+                                        if not StringUtil.containsSubstring(b,dist.name) and not StringUtil.containsSubstring(b,city.name):
+                                            n = Road(b,1)
+                                            n.end = True
+                                            dist.roads.append(n)
+                                    pass
                             city.dists.append(dist) # 현재 City 트리에 Dist 리스트에 추가
+                            city.dists.append(mDist) # 현재 City 트리에 Dist 리스트에 추가
+
                 currentLine+=1
 
                 # 트리를 정렬합니다. (기준 : 카운트)
@@ -340,6 +445,9 @@ class Engine4:
         # 도로명 먼저 탐색합니다.
         for city in self.tree.cities: # city 트리입니다.
             for dist in city.dists: # dict 트리입니다.
+
+                if dist.end:
+                    continue
 
                 # 줄 리스트를 만들고 정렬 합니다. (줄 대상 트리 내 윈도우)
                 winList = []
@@ -379,9 +487,7 @@ class Engine4:
                 regionList = self.addressDB.getAdressList(key, AddressDB.ROAD_FIND_DISTRICT, AddressDB.ROAD_FIND_ROAD)[0]
                 regionList += self.addressDB.getAdressList(key, AddressDB.OLD_FIND_DISTRICT, AddressDB.OLD_FIND_TOWN,AddressDB.OLD_ADDRESS)[0]
 
-
                 currentLine = 0
-
 
                 # 윈도우에서 두번 나와야 함
 
@@ -415,9 +521,22 @@ class Engine4:
                                     roadComplete = True;
 
                             if not roadComplete:
+                                mRoad = Road(regionKey,num) # 새 객체 생성
+                                mRoad.line.append(textLine.line)
                                 road = Road(regionKey,num) # 새 객체 생성
                                 road.line.append(textLine.line)
+                                for i in self.buildList:
+                                    for j in i.line:
+                                        a = StringUtil.generateCombinations(textList[j])
+                                        for b in a:
+                                            n = Num(b,1)
+                                            n.end = True
+                                            road.nums.append(n)
+                                        pass
                                 dist.roads.append(road) # 현재 City 트리에 Dist 리스트에 추가
+                                dist.roads.append(mRoad) # 현재 City 트리에 Dist 리스트에 추가
+
+
 
                     currentLine+=1
 
@@ -431,10 +550,13 @@ class Engine4:
         tag = "getNum_2"
 
 
+
         # 모든 트리에 대하여 탐색을 시도합니다.
         for city in self.tree.cities: # city 트리입니다.
             for dist in city.dists: # dist 트리입니다.
                 for road in dist.roads: # road 트리입니다.
+                    if road.end:
+                        continue
 
                     # 줄 리스트를 만들고 정렬 합니다. (줄 대상 트리 내 윈도우)
                     winList = []
@@ -459,7 +581,6 @@ class Engine4:
                     searchLine = winList[0].line
                     numbers = self.extract_numbers(textList[searchLine])
 
-
                     for line in numbers:
                         numComplete = False
                         for num in road.nums:
@@ -472,6 +593,5 @@ class Engine4:
                             n = Num(line,1)
                             n.line = searchLine
                             road.nums.append(n)
-
 
                     road.nums = sorted(road.nums, key = lambda num: num.count,reverse=True)
