@@ -6,5 +6,5 @@ class FrameworkListener:
         pass
 
 class UIEventListener:
-    def onSetDataEvent(self,index : int,text : str) -> bool:
+    def onSetDataEvent(self,index : int,data) -> bool:
         pass

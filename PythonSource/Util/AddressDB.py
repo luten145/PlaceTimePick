@@ -23,9 +23,9 @@ f = open("./Util/RoadAddress.txt", "r", encoding="utf-8")
 
 RoadAddressL = [i.split("|") for i in f.readlines()]
 f.close()
-f = open("./Util/RoadAddress.txt", "r", encoding="utf-8")
-OldAddressL = [i.split("|") for i in f.readlines()]
-f.close()
+c = open("./Util/OldAddress.txt", "r", encoding="utf-8")
+OldAddressL = [i.split("|") for i in c.readlines()]
+c.close()
 
 class AddressDB:
 
@@ -275,6 +275,3 @@ class AddressDB:
                     
                     Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
                     return Address
-
-a = AddressDB()
-print(a.getAdressList(Type=ROAD_ADDRESS,Find="전남",AddressNum=ROAD_FIND_CITY,AddressGet=ROAD_FIND_DISTRICT))

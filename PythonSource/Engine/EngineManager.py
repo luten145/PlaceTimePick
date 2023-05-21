@@ -29,7 +29,7 @@ class MainEngine:
         #j.jsonHandler(data)
         #Engine2(self.mUIManager).jsonHandler(data)
         #Engine3(self.mUIManager).jsonHandler(data)
-        Engine4().jsonHandler(data)
+        Engine4(self.mUIManager).jsonHandler(data)
         pass
 
     pass

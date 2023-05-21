@@ -3,6 +3,8 @@ from PythonSource.Util.LogUtil import *
 from PythonSource.Util import AddressDB
 from PythonSource.Util import StringUtil
 from PythonSource.Util import AddressApi
+from PythonSource.UI.UIListener import UIEventListener
+
 
 class Address:
     def __init__(self,name,count):
@@ -33,6 +35,8 @@ class Road(Address):
 class Num(Address):
     def __init__(self,name,count):
         super().__init__(name,count)
+        self.result = ""
+        self.resultOld = ""
 
 
 class Build(Address):
@@ -48,22 +52,33 @@ class StrData:
     def __init__(self,str,line):
         self.str = str
         self.line = line
+        self.count = 0
 
 class ScoreTable():
-    def __init__(self,address,score):
+    def __init__(self,address,score,road = "",old =""):
         self.address = address
         self.score = score
+        self.result = road
+        self.resultOld = old
+
+class SendData():
+    def __init__(self):
+        self.addressTable = []
+        self.otherInfo = []
+
 
 
 TAG = "Engine4"
 
 class Engine4:
 
-    def __init__(self):
+    def __init__(self, uiManager: UIEventListener):
+        self.mUIManager = uiManager
         self.tree = Addr()
         self.addressDB = AddressDB.AddressDB()
         self.addrScore = []
         self.buildList = []
+        self.addressApi = AddressApi.AddressApi()
 
     def jsonHandler(self, data):  # data is json File
         Log(TAG, "JsonHandler")  # Log
@@ -77,12 +92,14 @@ class Engine4:
         return str(text).split('\\n')  # 한줄씩 나눠서 리스트로 만들기
 
     def dataHandler(self, textList):
+
         self.getBuilding(textList)
 
         for i in self.buildList:
             Log(TAG,i.__dict__)
 
-        self.getCity(textList)
+        # 각각의 함수는 트리를 처리합니다.
+        self.cityHandler(textList)
         Log(TAG,"Start")
         self.printTree()
         Log(TAG,"End")
@@ -111,6 +128,16 @@ class Engine4:
             Log(TAG,str(i.__dict__))
 
 
+
+        o = SendData()
+        o.addressTable = self.addrScore
+
+        for i in self.buildList:
+            for j in i.line:
+                o.otherInfo.append(textList[j])
+                Log(TAG,"추가정보 : "+str(textList[j]))
+        self.mUIManager.onSetDataEvent(0,o)
+
     pass
 
     def printTree(self):
@@ -134,8 +161,6 @@ class Engine4:
 
         # 모든 경우의 수를 출력합니다.
         for city in self.tree.cities:
-
-
             city.score = city.count + 8*1
 
             if(city.name != "None"):
@@ -168,18 +193,27 @@ class Engine4:
                     for num in road.nums:
                         num.score = city.score+dist.score+road.score+num.count + 8*3
                         nAddrStr = str(cityName) + " " + str(distName) + " " +str(roadName) +" " + num.name
-                        r = AddressApi.wordSearch(nAddrStr)
+                        r = self.addressApi.wordSearch(nAddrStr)
                         if r.resultCount > 0:
+
+                            a = StringUtil.similarity(r.word,r.addr[0])
+                            b = StringUtil.similarity(r.word,r.addrOld[0])
+                            if a>b:
+                                num.score += a
+                            else:
+                                num.score += b
+
+                            num.result = r.addr[0]
+                            num.resultOld = r.addrOld[0]
+
                             num.score += 16
                             pass
 
-                        Log(TAG,"   " +"   " +"   " + nAddrStr+" Score : "+ str(num.score))
+                        Log(TAG,"   " +"   " +"   " + nAddrStr+" Score : "+ str(num.score)+" S Result : "+str(num.result))
                         nS = ScoreTable(nAddrStr,num.score)
+                        nS.result = num.result
+                        nS.resultOld = num.resultOld
                         self.addrScore.append(nS)
-
-
-
-
         pass
 
     def extract_words(self,text, keyword):
@@ -191,7 +225,7 @@ class Engine4:
         return result
 
     def getBuilding(self, textList):
-        placePattern = ["홀", "웨딩", "장례","병원"]
+        placePattern = ["홀", "웨딩", "장례", "병원", "층"]
 
         currentLine = 0
         for textLine in textList:
@@ -215,10 +249,10 @@ class Engine4:
 
         pass
 
-    def getCity(self, textList):
+    def cityHandler(self, textList):
         tag = "getCity"
 
-        regionList = self.addressDB.getAdressList()[0]  # All City List
+        regionList = self.addressDB.getAdressList()[0]  # Get all city list
         currentLine = 0
         for textLine in textList:
             for regionKey in regionList:
@@ -230,6 +264,7 @@ class Engine4:
                             city.count += num  # 카운트 증가 (Scoring)
                             city.line.append(currentLine)  # 발견괸 라인 저장 (윈도우 탐색용)
                             cityComplete = True;
+                            break
 
                     if not cityComplete:
                         city = City(regionKey,num) # 새 객체 생성
@@ -237,9 +272,14 @@ class Engine4:
                         self.tree.cities.append(city) # 트리에 City 리스트에 추가
             currentLine+=1
 
-        # 트리를 정렬합니다. (기준 : 카운트)
-        self.tree.cities = sorted(self.tree.cities, key = lambda city : city.count,reverse=True)
+        if len (self.tree.cities) == 0:  # 키를 찾지 못한 경우 전체 City키를 트리에 추가합니다.
+            for regionKey in regionList:
+                city = City(regionKey,0) # 새 객체 생성
+                self.tree.cities.append(city) # 트리에 City 리스트에 추가
 
+        # 트리self.tree.cities.append(city) # 트리에 City 리스트에 추가
+        # 를 정렬합니다. (기준 : 카운트)
+        self.tree.cities = sorted(self.tree.cities, key = lambda city : city.count,reverse=True)
         pass
 
     def getDistrict(self, textList):
@@ -308,6 +348,8 @@ class Engine4:
                 lineList += city.line
                 lineList += dist.line
 
+                Log(TAG,lineList)
+
 
                 for line in lineList:
                     winComplete = False
@@ -325,8 +367,11 @@ class Engine4:
                 mText = []
 
                 for i in winList:
+                    Log(tag,i.line)
                     s = StrData(textList[i.line],i.line)
                     mText.append(s)
+
+
 
                 key = dist.name
                 Log(tag,key)
@@ -337,10 +382,31 @@ class Engine4:
 
                 currentLine = 0
 
+
+                # 윈도우에서 두번 나와야 함
+
                 for textLine in mText:
+                    mStack = []
                     for regionKey in regionList:
                         num = StringUtil.countPattern(textLine.str, regionKey)
                         if num > 0:  # 같은것이 있습니다.
+
+                            # 트리 내에 정보와 겹칩니까?
+                            if regionKey == dist.name or regionKey == city.name:
+                                # 일단 내부 스택에 넣습니다.
+                                stackCom = False
+                                for stack in mStack:
+                                    if stack.str == regionKey and stack.count > 0:
+                                        stackCom = True # 통과
+                                        pass
+
+                                if not stackCom:
+                                    s = StrData(regionKey,textLine.line)
+                                    s.count = 1
+                                    mStack.append(s)
+                                    break
+
+
                             roadComplete = False
                             for road in dist.roads: # 트리 안에 있는 Dist 리스트 탐색
                                 if(road.name == regionKey):  # 현재 비교하는 지역이 이미 있는경우
