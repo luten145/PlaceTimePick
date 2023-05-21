@@ -18,14 +18,20 @@ OLD_FIND_DISTRICT=3
 OLD_FIND_TOWN=5
 OLD_FIND_VILLAGE=7
 
+a = 0
+f = open("./Util/RoadAddress.txt", "r", encoding="utf-8")
+
+RoadAddressL = [i.split("|") for i in f.readlines()]
+f.close()
+f = open("./Util/RoadAddress.txt", "r", encoding="utf-8")
+OldAddressL = [i.split("|") for i in f.readlines()]
+f.close()
+
 class AddressDB:
+
     def __init__(self):
-        self.f = open("./Util/RoadAddress.txt", "r", encoding="utf-8")
-        self.RoadAddressList=[i.split("|") for i in self.f.readlines()]
-        self.f.close()
-        self.f = open("./Util/OldAddress.txt", "r", encoding="utf-8")
-        self.OldAddressList=[i.split("|") for i in self.f.readlines()]
-        self.f.close()
+        self.RoadAddressList=RoadAddressL
+        self.OldAddressList=OldAddressL
         pass
 
 
@@ -269,60 +275,6 @@ class AddressDB:
                     
                     Address[0]=list(set(Address[0])); Address[1]=list(set(Address[1]))
                     return Address
-
-
-
-
-    # ODO 1 : 핵심 단어만 리스트화하는 함수 만들기 OK
-    #  EX)서울 특별시 -> 서울 ,강원도 -> 강원
-    #  방식은 서울 특별시와 같은 리스트를 넣으면 변환된 리스트가 나오게 하는 함수를 새로 만들거나
-    #  기존 함수에 플래그 인수 추가 중 선택
-    #  SearchAdress(AddressList,"경상북도",0)  # 출력 : 서울 특별시 , 강원도, 제주특별자치도
-    #  SearchAdress(AddressList,"경상북도",1)  # 출력 : 서울,강원,대구
-
-    # ODO 2 : 한글자인거는 뒤까지 툴력 하도록  변경 ex) 중구 -> 중 (X)  , 중구 -> 중구
-    # ODO 3 : 시 군구 에서 '성남시 수정', '성남시 분당' 같은 경우 성남, 분당 , 성남, 수정으로 나누어서 리스트 만들기
-    # ODO 4 : 도로명의 경우 뒷 숫자 빼고 리스트 말들고 숫자는 따로 리스트 얻는함수 만들기
-    # ODO 5 : 서울입력 -> 서울특별시 출력되는 함수 만들기
-    # ODO 5 : 전북 전남 경북 경남 안됨 => 전북,전남 입력시 전라북도,전라남도 나와야 하고 CITY 출력 시 전라북도 => 전라,전북 모두 나오도록 하기
-    # ODO 6 : 지번정보 검색 불가 => 지번도 사용 가능하도록 하기 + 지번과 도로명주소는 동시에 검색되면 안됨 인수로 이를 구분하도록 하기
-
-
-
-
-    '''
-    Scarch Example
-    CityList=SearchAdress(AddressList,"경상북도")
-    >>>>>>> Stashed changes
-    print(CityList)
-    
-    CityList=SearchAdress(AddressList,Find="강서구",AddressNum=ROAD_FIND_DISTRICT,AddressGet=ROAD_FIND_CITY)
-    print(CityList)
-    
-    DistrictList=SearchAdress(AddressList,AddressGet=ROAD_FIND_DISTRICT)
-    print(DistrictList)
-    
-    DistrictList=SearchAdress(AddressList,Find="서울",AddressNum=FIND2CITY,AddressGet=ROAD_FIND_DISTRICT)
-    print(DistrictList)
-    
-    TownList=SearchAdress(AddressList,AddressGet=ROAD_FIND_TOWN)
-    print(TownList)
-    
-    TownList=SearchAdress(AddressList,Find="금산군",AddressNum=FIND2DISTRICT,AddressGet=ROAD_FIND_TOWN)
-    print(TownList)
-    
-    RoadList=SearchAdress(AddressList,AddressGet=ROAD_FIND_ROAD)
-    print(RoadList)
-    
-    RoadList=SearchAdress(AddressList,Find="강동구",AddressNum=FIND2DISTRICT,AddressGet=ROAD_FIND_ROAD)
-    print(RoadList)
-    
-    # NumList=SearchAdress(AddressList,AddressGet=ROAD_FIND_NUM)
-    # print(NumList)
-    
-    NumList=SearchAdress(AddressList,Find="금산군",AddressNum=FIND2DISTRICT,AddressGet=ROAD_FIND_NUM)
-    print(NumList)
-    '''
 
 a = AddressDB()
 print(a.getAdressList(Type=ROAD_ADDRESS,Find="전남",AddressNum=ROAD_FIND_CITY,AddressGet=ROAD_FIND_DISTRICT))
