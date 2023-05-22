@@ -11,7 +11,9 @@ class SearchResult:
         self.word = ""
         self.addr = []
         self.addrOld = []
+        self.postNum = []
         self.resultCount = 0
+
 
 
 class AddressApi():
@@ -55,8 +57,11 @@ class AddressApi():
             word = self.remove_cdata(word)
             word2 = self.getDataItem(w, '<jibunAddr>', '</jibunAddr>') #리스트의 아이템 갖고오기
             word2 = self.remove_cdata(word2)
+            word3 = self.getDataItem(w, '<zipNo>', '</zipNo>') #리스트의 아이템 갖고오기
+            word3 = self.remove_cdata(word3)
             if len(word) > 0:
                 result.addr.append(word)
                 result.addrOld.append(word2)
+                result.postNum.append(word3)
                 result.resultCount +=1
         return result

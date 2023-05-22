@@ -5,42 +5,50 @@ from PythonSource.Util import StringUtil
 from PythonSource.Util import AddressApi
 from PythonSource.UI.UIListener import UIEventListener
 
+# 가중치 정보
+CITY_NODE_SCORE = 8
+DIST_NODE_SCORE = 8
+ROAD_NODE_SCORE = 8
+NUM_NODE_SCORE = 8
+SEARCH_BONUS_KEYWORD = ["홀", "웨딩", "장례", "병원"]
+SEARCH_BONUS_SCORE = 50
+SEARCH_COMPLETE_SCORE = 16
+SEARCH_SIMILARITY_MULTIPLE = 100
 
 class Address:
     def __init__(self,name,count):
-        self.name = name
-        self.line = []
-        self.count = count
-        self.score = 0
-        self.result = ""
-        self.resultOld = ""
-        self.end = False
+        self.name = name  # 키워드
+        self.line = []  # 발견된 라인 위치
+        self.count = count  # 중복 횟수
+        self.score = 0  # 점수
+        self.result = ""  # 도로명주소
+        self.resultOld = ""  # 지번주소
+        self.postNum = ""  # 우편번호
+        self.end = False  # 트리의 노트가 End일 경우 노드의 끝을 의미함
 
 
 class Addr():
     def __init__(self):
-        self.cities = []
+        self.cities = []  # City 노드
 
 class City(Address):
     def __init__(self,name,count):
         super().__init__(name,count)
-        self.dists = []
+        self.dists = []  # Dist 노드
 
 class Dist(Address):
     def __init__(self, name, count):
         super().__init__(name,count)
-        self.roads = []
+        self.roads = []  # Road 노드
 
 class Road(Address):
     def __init__(self,name,count):
         super().__init__(name,count)
-        self.nums = []
+        self.nums = []  # 숫자 노드
 
 class Num(Address):
     def __init__(self,name,count):
         super().__init__(name,count)
-
-
 
 class Build(Address):
     def __init__(self,name,count):
@@ -58,11 +66,12 @@ class StrData:
         self.count = 0
 
 class ScoreTable():
-    def __init__(self,address,score,road = "",old =""):
+    def __init__(self,address,score,road = "",old ="",postNum = ""):
         self.address = address
         self.score = score
         self.result = road
         self.resultOld = old
+        self.postNum = postNum
 
 class SendData():
     def __init__(self):
@@ -143,8 +152,6 @@ class Engine4:
                 Log(TAG,str(i.__dict__))
 
 
-
-
         o = SendData()
         o.addressTable = self.addrScore
 
@@ -162,7 +169,12 @@ class Engine4:
                 break
             l+=1
 
-
+        # 결과 출력
+        Log(TAG,"결과 \n뽑아낸 주소 : "+str(self.addrScore[0].address)+"\n도로명주소 : "+str(self.addrScore[0].result)+"\n지번주소 : "+str(self.addrScore[0].resultOld)+"\n우편번호 : "+str(self.addrScore[0].postNum))
+        print("추가정보 : ",end = "")
+        for i in self.buildList:
+            for j in i.line:
+                print(str(textList[j]),end = " ")
 
 
     pass
@@ -188,7 +200,7 @@ class Engine4:
 
         # 모든 경우의 수를 출력합니다.
         for city in self.tree.cities:
-            city.score = city.count + 8*1
+            city.score = city.count + CITY_NODE_SCORE
 
             if(city.name != "None"):
                 cityName = self.addressDB.getAdressList(Find=city.name, AddressNum=AddressDB.ROAD_FIND_CITY, AddressGet=AddressDB.ROAD_FIND_CITY)[1][0]
@@ -201,7 +213,7 @@ class Engine4:
             self.addrScore.append(cS)
 
             for dist in city.dists:
-                dist.score = city.score+dist.count+ 8*1
+                dist.score = city.score+dist.count+ DIST_NODE_SCORE
 
                 distName = dist.name
                 dAddrStr = str(cityName) + " " + str(distName)
@@ -211,14 +223,13 @@ class Engine4:
                     r = self.addressApi.wordSearch(dAddrStr)
                     if r.resultCount > 0:
 
-                        a = StringUtil.similarity(r.word,r.addr[0])
-                        b = StringUtil.similarity(r.word,r.addrOld[0])
+                        a = StringUtil.similarity(r.word,r.addr[0])*SEARCH_SIMILARITY_MULTIPLE
+                        b = StringUtil.similarity(r.word,r.addrOld[0])*SEARCH_SIMILARITY_MULTIPLE
 
                         # 특정 키워트 추가점수
-                        placePattern = ["홀", "웨딩", "장례", "병원"]
-                        for i in placePattern:
+                        for i in SEARCH_BONUS_KEYWORD:
                             if StringUtil.containsSubstring(r.addr[0],i) or StringUtil.containsSubstring(r.addrOld[0],i):
-                                dist.score += 50
+                                dist.score += SEARCH_BONUS_SCORE
 
                         if a>b:
                             dist.score += a
@@ -227,19 +238,21 @@ class Engine4:
 
                         dist.result = r.addr[0]
                         dist.resultOld = r.addrOld[0]
+                        dist.postNum = r.postNum[0]
 
-                        dist.score += 16
+                        dist.score += SEARCH_COMPLETE_SCORE
                         pass
                 dS = ScoreTable(dAddrStr,dist.score)
                 dS.result = dist.result
                 dS.resultOld = dist.resultOld
+                dS.postNum = dist.postNum
                 self.addrScore.append(dS)
 
 
 
                 for road in dist.roads:
                     roadName = road.name
-                    road.score = city.score+dist.score+road.count + 8*2
+                    road.score = city.score+dist.score+road.count + ROAD_NODE_SCORE
                     rAddrStr = str(cityName) + " " + str(distName) + " " +str(roadName)
                     Log(TAG,"   " +"   " + rAddrStr+" Score : "+ str(road.score))
 
@@ -247,47 +260,47 @@ class Engine4:
                         r = self.addressApi.wordSearch(rAddrStr)
                         if r.resultCount > 0:
 
-                            a = StringUtil.similarity(r.word,r.addr[0])
-                            b = StringUtil.similarity(r.word,r.addrOld[0])
+                            a = StringUtil.similarity(r.word,r.addr[0])*SEARCH_SIMILARITY_MULTIPLE
+                            b = StringUtil.similarity(r.word,r.addrOld[0])*SEARCH_SIMILARITY_MULTIPLE
                             if a>b:
                                 road.score += a
                             else:
                                 road.score += b
 
                             # 특정 키워트 추가점수
-                            placePattern = ["홀", "웨딩", "장례", "병원"]
-                            for i in placePattern:
+                            for i in SEARCH_BONUS_KEYWORD:
                                 if StringUtil.containsSubstring(r.addr[0],i) or StringUtil.containsSubstring(r.addrOld[0],i):
-                                    road.score += 50
+                                    road.score += SEARCH_BONUS_SCORE
 
                             road.result = r.addr[0]
                             road.resultOld = r.addrOld[0]
+                            road.postNum = r.postNum[0]
 
-                            road.score += 16
+                            road.score += SEARCH_COMPLETE_SCORE
                             pass
 
                     rS = ScoreTable(rAddrStr,road.score)
                     rS.result = road.result
                     rS.resultOld = road.resultOld
+                    rS.postNum = road.postNum
                     self.addrScore.append(rS)
 
                     for num in road.nums:
                         if self.ENABLE_HARD_SEARCH == False and num.end == True:
                             # 고급검색이 꺼져있으면 엔드 플래그가 있는것을 검색하지 않고 넘깁니다.
                             break
-                        num.score = city.score+dist.score+road.score+num.count + 8*3
+                        num.score = city.score+dist.score+road.score+num.count + NUM_NODE_SCORE
                         nAddrStr = str(cityName) + " " + str(distName) + " " +str(roadName) +" " + num.name
                         r = self.addressApi.wordSearch(nAddrStr)
                         if r.resultCount > 0:
 
-                            a = StringUtil.similarity(r.word,r.addr[0])
-                            b = StringUtil.similarity(r.word,r.addrOld[0])
+                            a = StringUtil.similarity(r.word,r.addr[0])*SEARCH_SIMILARITY_MULTIPLE
+                            b = StringUtil.similarity(r.word,r.addrOld[0])*SEARCH_SIMILARITY_MULTIPLE
 
                             # 특정 키워트 추가점수
-                            placePattern = ["홀", "웨딩", "장례", "병원"]
-                            for i in placePattern:
+                            for i in SEARCH_BONUS_KEYWORD:
                                 if StringUtil.containsSubstring(r.addr[0],i) or StringUtil.containsSubstring(r.addrOld[0],i):
-                                    num.score += 50
+                                    num.score += SEARCH_BONUS_SCORE
 
                             if a>b:
                                 num.score += a
@@ -296,14 +309,16 @@ class Engine4:
 
                             num.result = r.addr[0]
                             num.resultOld = r.addrOld[0]
+                            num.postNum = r.postNum[0]
 
-                            num.score += 16
+                            num.score += SEARCH_COMPLETE_SCORE
                             pass
 
                         Log(TAG,"   " +"   " +"   " + nAddrStr+" Score : "+ str(num.score)+" S Result : "+str(num.result))
                         nS = ScoreTable(nAddrStr,num.score)
                         nS.result = num.result
                         nS.resultOld = num.resultOld
+                        nS.postNum = num.postNum
                         self.addrScore.append(nS)
         pass
 

@@ -1,7 +1,7 @@
 from difflib import SequenceMatcher
 
 def similarity(a, b):
-    return SequenceMatcher(None, a, b).ratio() * 100
+    return SequenceMatcher(None, a, b).ratio()
 
 def countPattern(string, pattern):
     if string == '' or pattern == '':
