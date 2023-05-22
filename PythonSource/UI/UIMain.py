@@ -20,8 +20,9 @@ PLACE_HO = 11
 TIME_YEAR = 13
 TIME_MONTH = 15
 TIME_DATE = 17
-TIME_HOUR = 19
-TIME_MIN = 21
+TIME_WEEK = 19
+TIME_HOUR = 21
+TIME_MIN = 23
 
 
 TAG = "UIMain"
@@ -62,7 +63,7 @@ class UIManager:
 
                 if globalIndex < 13:
                     placeTextList[globalIndex].config(text=globalText)
-                elif globalIndex == 23:
+                elif globalIndex == 25:
                     addInfoTextList[21 - globalIndex + 1].config(text=globalText)
                 else:
                     timeTextList[globalIndex + 1 - 14].config(text=globalText)
@@ -113,14 +114,15 @@ class UIManager:
         placeTextList[8].config(text='건물번호')
         placeTextList[10].config(text='동ㆍ층ㆍ호')
 
-        for i in range(10):
+        for i in range(12):
             timeTextList.append(Label(frame3))
 
         timeTextList[1].config(text='년')
         timeTextList[3].config(text='월')
         timeTextList[5].config(text='일')
-        timeTextList[7].config(text='시')
-        timeTextList[9].config(text='분')
+        timeTextList[7].config(text='요일')
+        timeTextList[9].config(text='시')
+        timeTextList[11].config(text='분')
 
         for i in range(3):
             addInfoTextList.append(Label(frame4))
@@ -135,7 +137,7 @@ class UIManager:
 
         count = 0
         j = 0
-        for i in range(10):
+        for i in range(12):
             timeTextList[count].grid(row=3, column=j, ipadx=3, ipady=10)
             count += 1
             j += 1

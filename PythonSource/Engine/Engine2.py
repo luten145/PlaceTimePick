@@ -25,8 +25,11 @@ class Engine2:
         combined_text = "".join(text_list)
         text = [combined_text]
 
-        text_list=str(text).split('\\n')
-        text_str=str(text).replace("\\n"," ")
+        text_list = str(text).split('\\n')
+        text_str2 = str(text).replace("\\n","")
+        text_str3 = str(text_str2).replace(":","")
+        text_str = str(text_str3).replace(" ","")
+
         print(text_list)
         print(text_str)
         print()
@@ -80,7 +83,10 @@ class Engine2:
         region2 = regionList[2]
         region3 = str(' '.join(regionList[3:5]))"""
 
-        regionPattern1 = r"([가-힣]+(시|도)(\s[가-힣]+(시|도))?\s+[가-힣]+(시|군|구)(\s+[가-힣]+(읍|면|동))?(\s+[가-힣\d]+(로|길))?( \d+(번지|))?)"
+
+
+
+        """regionPattern1 = r"([가-힣]+(시|도)(\s[가-힣]+(시|도))?\s+[가-힣]+(시|군|구)(\s+[가-힣]+(읍|면|동))?(\s+[가-힣\d]+(로|길))?( \d+(번지|))?)"
         regionTuple = re.findall(regionPattern1, text_str)
         print("regionTuple: ", regionTuple, type(regionTuple))
         regionFind = regionTuple[0]
@@ -118,13 +124,13 @@ class Engine2:
                 region4 = regionList[3]
 
         placePattern = ["홀", "웨딩", "층", "장례"]
-        place = [item for item in text_list if any(re.search(p, item) for p in placePattern)]
+        place = [item for item in text_list if any(re.search(p, item) for p in placePattern)]"""
 
         #초기화
         year, month, day, week, hour, minute = 0, 0, 0, 0, 0, 0
 
         # 년월일 추출 - 2021년 10월 21일 or 2021.10.21 or 2021/10/21 or 2021-10-21
-        ymdPattern = r'(\d{4})(?:년|\.|/|-)\s?(\d{1,2})(?:월|\.|/|-)\s?(\d{1,2})?일?'
+        ymdPattern = r'(\d{4})(?:년|\.|/|-)(\d{1,2})(?:월|\.|/|-)(\d{1,2})?일?'
         ymdStr = re.search(ymdPattern, text_str)
         if ymdStr:
             ymdEndIndex = ymdStr.end()
@@ -143,7 +149,7 @@ class Engine2:
             week = weekStr.group(1)[0]
 
         # 시간 추출 - (오전 or 오후 or 낮) + 10시 20분 or 10:20
-        timePattern = r"(?:오후|오전|낮)?\s?(\d{1,2})(?::|시\s*)(\d{1,2})?(?:분)?"
+        timePattern = r"(?:오후|오전|낮)?(\d{1,2})(?::|시)(\d{1,2})?(?:분)?"
         timeStr = re.search(timePattern, weekNextText)
         if timeStr:
             hour = int(timeStr.group(1))
@@ -152,13 +158,13 @@ class Engine2:
             minute = int(timeStr.group(2) or 0)
 
         #print("장소: ", place_list)
-        print("시/도: ", region0, type(region0))
+        """print("시/도: ", region0, type(region0))
         print("시/군/구: ", region1, type(region1))
         print("읍/면: ", region2, type(region2))
         print("도로명: ", region3, type(region3))
         print("건물번호: ", region4, type(region4))
         #print(name_list)
-        print("장소: ", place)
+        print("장소: ", place)"""
         print("----------")
         print("년:", year, type(year))
         print("월:", month, type(month))
@@ -167,14 +173,15 @@ class Engine2:
         print("시: ", hour, type(hour))
         print("분: ", minute, type(minute))
 
-        self.mUIManager.onSetDataEvent(UIMain.PLACE_SI,region0)
+        """self.mUIManager.onSetDataEvent(UIMain.PLACE_SI,region0)
         self.mUIManager.onSetDataEvent(UIMain.PLACE_GU,region1)
         self.mUIManager.onSetDataEvent(UIMain.PLACE_DONG,region2)
         self.mUIManager.onSetDataEvent(UIMain.PLACE_STREET,region3)
-        self.mUIManager.onSetDataEvent(UIMain.PLACE_NUM,region4)
+        self.mUIManager.onSetDataEvent(UIMain.PLACE_NUM,region4)"""
         self.mUIManager.onSetDataEvent(UIMain.TIME_YEAR,str(year))
         self.mUIManager.onSetDataEvent(UIMain.TIME_MONTH,str(month))
         self.mUIManager.onSetDataEvent(UIMain.TIME_DATE,str(day))
+        self.mUIManager.onSetDataEvent(UIMain.TIME_WEEK,str(week))
         self.mUIManager.onSetDataEvent(UIMain.TIME_HOUR,str(hour))
         self.mUIManager.onSetDataEvent(UIMain.TIME_MIN,str(minute))
 
