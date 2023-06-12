@@ -3,7 +3,7 @@ from tkinter import *
 import operator
 import re
 from konlpy.tag import Kkma
-from PythonSource.Util import LogUtil as logUtil
+from PythonSource.Util import Log as logUtil
 from PythonSource.Util import AddressDB
 from PythonSource.Util import StringUtil
 import PythonSource.Util.DicApi as dicApi
@@ -53,13 +53,13 @@ class Engine3:
     def jsonHandler(self, data):  # data is json File
 
         self.mUIManager.onSetDataEvent(1, "ENGINE3")  # UI Test
-        logUtil.Log(TAG, "JsonHandler")  # Log
+        logUtil.LogUtil_old(TAG, "JsonHandler")  # Log
 
         textList = self.getTextList(data)
 
-        logUtil.Log(TAG, "Original Text")
+        logUtil.LogUtil_old(TAG, "Original Text")
         for i in textList:
-            logUtil.Log(TAG, i)
+            logUtil.LogUtil_old(TAG, i)
 
         self.dataHandler(textList)
         pass
@@ -77,13 +77,13 @@ class Engine3:
         self.city = self.getCity(textList)
 
         for i in self.city:
-            logUtil.Log(TAG,  "CITY : " + str(i.__dict__))
+            logUtil.LogUtil_old(TAG, "CITY : " + str(i.__dict__))
 
 
 
         districtList = self.getDistrict(textList, self.city)  # 시,군,구를 후보군
         for i in districtList:
-            logUtil.Log(TAG,  "DISTRICT : " + str(i.__dict__))
+            logUtil.LogUtil_old(TAG, "DISTRICT : " + str(i.__dict__))
 
         #townList = self.getTown(textList, districtList)  # 동 후보군
         #for i in townList:
@@ -91,12 +91,12 @@ class Engine3:
 
         roadList = self.getRoad(textList, districtList)  # 도로명 후보군
         for i in roadList:
-            logUtil.Log(TAG,  "ROAD : " + str(i.__dict__))
+            logUtil.LogUtil_old(TAG, "ROAD : " + str(i.__dict__))
 
         numList = self.getNum_2(textList,roadList)
 
         for i in numList:
-            logUtil.Log(TAG,  "NUM : " + str(i))
+            logUtil.LogUtil_old(TAG, "NUM : " + str(i))
 
 
 
@@ -114,7 +114,7 @@ class Engine3:
         sc += str(self.address.num)
 
         r = AddressApi.wordSearch(sc)
-        logUtil.Log(TAG,str(r.__dict__))
+        logUtil.LogUtil_old(TAG, str(r.__dict__))
         return r.addr != ""
 
 
@@ -123,7 +123,7 @@ class Engine3:
 
     def getCity(self, textList:list):
         tag = "getCity"
-        regionPattern = self.addressDB.getAdressList()[0]  # All City List
+        regionPattern = self.addressDB.getAddressList()[0]  # All City List
         res = []; c = 0
         for i in textList:
             for j in regionPattern:
@@ -163,20 +163,20 @@ class Engine3:
         t = len(cityList)
         if t == 1:
             key = cityList[q].name
-            logUtil.Log(tag, str(key))
-            regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
-            logUtil.Log(tag,"Info : 1 city was found.")
+            logUtil.LogUtil_old(tag, str(key))
+            regionPattern = self.addressDB.getAddressList(key, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
+            logUtil.LogUtil_old(tag, "Info : 1 city was found.")
         elif t > 1:
             key = cityList[q].name
-            logUtil.Log(tag, str(key))
-            regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
-            logUtil.Log(tag,"Info : Multiple cities were searched.")
+            logUtil.LogUtil_old(tag, str(key))
+            regionPattern = self.addressDB.getAddressList(key, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
+            logUtil.LogUtil_old(tag, "Info : Multiple cities were searched.")
         else:
-            logUtil.Log(tag,"Error! : Cannot find city -> Use all city list")
-            a = self.addressDB.getAdressList()[0]  # All city list
+            logUtil.LogUtil_old(tag, "Error! : Cannot find city -> Use all city list")
+            a = self.addressDB.getAddressList()[0]  # All city list
             regionPattern = []
             for i in a:
-                b= self.addressDB.getAdressList(i, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
+                b= self.addressDB.getAddressList(i, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
                 for j in b:
                     regionPattern.append(j)
 
@@ -214,9 +214,9 @@ class Engine3:
             if len(res) < 0 and t > q:
                 q+=1
                 key = cityList[q].name
-                logUtil.Log(tag, str(key))
-                regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
-                logUtil.Log(tag,"Info : Multiple cities were searched.")
+                logUtil.LogUtil_old(tag, str(key))
+                regionPattern = self.addressDB.getAddressList(key, AddressDB.FIND_CITY, AddressDB.FIND_DISTRICT)[0]
+                logUtil.LogUtil_old(tag, "Info : Multiple cities were searched.")
 
             else:
                 break;
@@ -230,17 +230,17 @@ class Engine3:
         t = len(cityList)
         if t == 1:
             key = cityList[0].name
-            logUtil.Log(tag, str(key))
-            regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_DISTRICT, AddressDB.FIND_TOWN)[0]
-            logUtil.Log(tag,"Info : 1 district was found.")
+            logUtil.LogUtil_old(tag, str(key))
+            regionPattern = self.addressDB.getAddressList(key, AddressDB.FIND_DISTRICT, AddressDB.FIND_TOWN)[0]
+            logUtil.LogUtil_old(tag, "Info : 1 district was found.")
         elif t > 1:
-            logUtil.Log(tag,"Info : Multiple district were searched.")
+            logUtil.LogUtil_old(tag, "Info : Multiple district were searched.")
         else:
-            logUtil.Log(tag,"Error! : Cannot find district -> Use all district list")
-            a = self.addressDB.getAdressList()[0]  # All city list
+            logUtil.LogUtil_old(tag, "Error! : Cannot find district -> Use all district list")
+            a = self.addressDB.getAddressList()[0]  # All city list
             regionPattern = []
             for i in a:
-                b= self.addressDB.getAdressList(i, AddressDB.FIND_DISTRICT, AddressDB.FIND_TOWN)[0]
+                b= self.addressDB.getAddressList(i, AddressDB.FIND_DISTRICT, AddressDB.FIND_TOWN)[0]
                 for j in b:
                     regionPattern.append(j)
 
@@ -283,20 +283,20 @@ class Engine3:
         t = len(cityList)
         if t == 1:
             key = cityList[0].name
-            logUtil.Log(tag, str(key))
-            regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[0]
-            logUtil.Log(tag,"Info : 1 district was found.")
+            logUtil.LogUtil_old(tag, str(key))
+            regionPattern = self.addressDB.getAddressList(key, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[0]
+            logUtil.LogUtil_old(tag, "Info : 1 district was found.")
         elif t > 1:
             key = cityList[0].name
-            logUtil.Log(tag, str(key))
-            regionPattern = self.addressDB.getAdressList(key, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[0]
-            logUtil.Log(tag,"Info : Multiple district were searched.")
+            logUtil.LogUtil_old(tag, str(key))
+            regionPattern = self.addressDB.getAddressList(key, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[0]
+            logUtil.LogUtil_old(tag, "Info : Multiple district were searched.")
         else:
-            logUtil.Log(tag,"Error! : Cannot find district -> Use all district list")
-            a = self.addressDB.getAdressList()[0]  # All city list
+            logUtil.LogUtil_old(tag, "Error! : Cannot find district -> Use all district list")
+            a = self.addressDB.getAddressList()[0]  # All city list
             regionPattern = []
             for i in a:
-                b= self.addressDB.getAdressList(i, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[0]
+                b= self.addressDB.getAddressList(i, AddressDB.FIND_DISTRICT, AddressDB.FIND_ROAD)[0]
                 for j in b:
                     regionPattern.append(j)
 
@@ -341,13 +341,13 @@ class Engine3:
         # 데이터에서 시를 찾습니다.
         if t == 1:
             key = cityList[0].name
-            logUtil.Log(tag, str(key))
-            logUtil.Log(tag,"Info : 1 road was found.")
+            logUtil.LogUtil_old(tag, str(key))
+            logUtil.LogUtil_old(tag, "Info : 1 road was found.")
         elif t > 1:
             key = cityList[0].name
-            logUtil.Log(tag,"Info : Multiple road were searched.")
+            logUtil.LogUtil_old(tag, "Info : Multiple road were searched.")
         else:
-            logUtil.Log(tag,"Error! : Cannot find road -> Search End")
+            logUtil.LogUtil_old(tag, "Error! : Cannot find road -> Search End")
 
         self.address.road = key
         self.windows = sorted(self.windows,key= lambda windows : windows.count , reverse = True)
@@ -365,7 +365,7 @@ class Engine3:
 
         self.address.num = key
 
-        logUtil.Log(TAG,str(self.address.__dict__))
+        logUtil.LogUtil_old(TAG, str(self.address.__dict__))
         print(self.getValidation())
 
         return numbers
