@@ -2,7 +2,7 @@ import re
 from tkinter import *
 from konlpy.tag import Kkma
 import PythonSource.Util.DicApi as dicApi
-from PythonSource.Util import LogUtil as logUtil
+from PythonSource.Util import Log as logUtil
 from PythonSource.UI.UIListener import UIEventListener
 from PythonSource.UI import UIMain
 
@@ -49,7 +49,7 @@ class Engine1:
 
     def jsonHandler(self,data):
         self.mUIManager.onSetDataEvent(1,"HELLO ENGINE2")
-        logUtil.Log(TAG,"dataIN!!")
+        logUtil.LogUtil_old(TAG, "dataIN!!")
         # data is json File
         # json 파일 내에 text 키의 값들만 읽어서 하나의 리스트로 만들기
         text_list = data["task_result"]["text"]
@@ -85,14 +85,14 @@ class Engine1:
         scarchResult = dicApi.wordSearch(noun) # 명사 검색시작
 
         if(scarchResult != -1):
-            logUtil.Log(TAG, "-------------------")
-            logUtil.Log(TAG, "라인 수 : " + str(currentLine))
-            logUtil.Log(TAG, "검색한 단어 : " + scarchResult.word)
-            logUtil.Log(TAG, "단어의 뜻 : " + scarchResult.addr)
-            logUtil.Log(TAG, "-------------------")
+            logUtil.LogUtil_old(TAG, "-------------------")
+            logUtil.LogUtil_old(TAG, "라인 수 : " + str(currentLine))
+            logUtil.LogUtil_old(TAG, "검색한 단어 : " + scarchResult.word)
+            logUtil.LogUtil_old(TAG, "단어의 뜻 : " + scarchResult.addr)
+            logUtil.LogUtil_old(TAG, "-------------------")
             self.setScore(currentLine, scarchResult)
         else:
-            logUtil.Log(TAG, "사전에서 단어를 찾을 수 없습니다!")
+            logUtil.LogUtil_old(TAG, "사전에서 단어를 찾을 수 없습니다!")
 
     def setScore(self,line, data): # 한 줄에 대한 점수를 채점합니다.
         for j in range(0,3):
