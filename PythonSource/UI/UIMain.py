@@ -1,9 +1,7 @@
 from tkinter import *
 from PythonSource.UI.UIListener import FrameworkListener
-from PythonSource.UI.UIListener import UIEventListener
-from PythonSource.Util import LogUtil as logUtil
+from PythonSource.Util import Log as logUtil
 from PythonSource.Engine.Engine4 import *
-
 
 placeTextList = []
 timeTextList = []
@@ -45,13 +43,13 @@ class UIManager:
                 globalIndex = index
                 globalText = text
                 self.UIdEit.editLabel(self)
-                logUtil.Log(TAG, "Index : " + str(index) + " | Data : " + text)
+                logUtil.LogUtil_old(TAG, "Index : " + str(index) + " | Data : " + text)
             elif(type(text) == SendData):
                 text : SendData
                 for i in text.addressTable:
-                    Log(TAG,i.__dict__)
+                    Log.d(TAG,i.__dict__)
                 for i in text.otherInfo:
-                    Log(TAG,i)
+                    Log.d(TAG,i)
             return False
 
         class UIdEit:
