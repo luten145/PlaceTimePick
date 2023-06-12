@@ -1,12 +1,8 @@
 import re
-from tkinter import *
-from konlpy.tag import Kkma
-import PythonSource.Util.DicApi as dicApi
-from PythonSource.Util import LogUtil as logUtil
+from PythonSource.Util import Log
 from PythonSource.UI.UIListener import UIEventListener
 from PythonSource.UI import UIMain
-from PythonSource.Util import AddressDB
-from PythonSource.Util import StringUtil
+
 
 TAG = "Engine2"
 
@@ -18,7 +14,7 @@ class Engine2:
 
     def jsonHandler(self,data):
         self.mUIManager.onSetDataEvent(1,"HELLO ENGINE2")
-        logUtil.Log(TAG,"dataIN!!")
+        Log.i(TAG, "dataIN!!")
         # data is json File
         # json 파일 내에 text 키의 값들만 읽어서 하나의 리스트로 만들기
         text_list = data["task_result"]["text"]
@@ -141,20 +137,23 @@ class Engine2:
         # 요일 추출 - 월요일 or (월) or 월
         #weekPattern = r"(월요일|화요일|수요일|목요일|금요일|토요일|일요일|\((월|화|수|목|금|토|일)\)|월|화|수|목|금|토|일)"
         weekPattern = r"\(?(월요일|화요일|수요일|목요일|금요일|토요일|일요일|월|화|수|목|금|토|일)\)?"
-        weekStr = re.search(weekPattern, ymdNextText)
-        if weekStr:
-            weekEndIndex = weekStr.end()
-            weekNextText = text_str[weekEndIndex:]
-            week = weekStr.group(1)[0]
+        try:
+            weekStr = re.search(weekPattern, ymdNextText)
+            if weekStr:
+                weekEndIndex = weekStr.end()
+                weekNextText = text_str[weekEndIndex:]
+                week = weekStr.group(1)[0]
 
-        # 시간 추출 - (오전 or 오후 or 낮) + 10시 20분 or 10:20
-        timePattern = r"(?:오후|오전|낮)?(\d{1,2})(?::|시)(\d{1,2})?(?:분)?"
-        timeStr = re.search(timePattern, weekNextText)
-        if timeStr:
-            hour = int(timeStr.group(1))
-            if '오후' in str(timeStr):
-                hour += 12
-            minute = int(timeStr.group(2) or 0)
+            # 시간 추출 - (오전 or 오후 or 낮) + 10시 20분 or 10:20
+            timePattern = r"(?:오후|오전|낮)?(\d{1,2})(?::|시)(\d{1,2})?(?:분)?"
+            timeStr = re.search(timePattern, weekNextText)
+            if timeStr:
+                hour = int(timeStr.group(1))
+                if '오후' in str(timeStr):
+                    hour += 12
+                minute = int(timeStr.group(2) or 0)
+        except UnboundLocalError:
+            Log.e(TAG, "UnboundLocalError")
 
         #print("장소: ", place_list)
         """print("시/도: ", region0, type(region0))
