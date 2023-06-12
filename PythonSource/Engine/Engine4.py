@@ -10,7 +10,7 @@ CITY_NODE_SCORE = 8
 DIST_NODE_SCORE = 8
 ROAD_NODE_SCORE = 8
 NUM_NODE_SCORE = 8
-SEARCH_BONUS_KEYWORD = ["홀", "웨딩", "장례", "병원"]
+SEARCH_BONUS_KEYWORD = ["홀", "웨딩", "장례", "병원","호텔"]
 SEARCH_BONUS_SCORE = 50
 SEARCH_COMPLETE_SCORE = 16
 SEARCH_SIMILARITY_MULTIPLE = 100
@@ -36,7 +36,7 @@ class City(Address):
         super().__init__(name,count)
         self.dists = []  # Dist 노드
 
-class Dist(Address):
+class Dist(Address): #시 군 구
     def __init__(self, name, count):
         super().__init__(name,count)
         self.roads = []  # Road 노드
@@ -105,6 +105,9 @@ class Engine4:
         return str(text).split('\\n')  # 한줄씩 나눠서 리스트로 만들기
 
     def dataHandler(self, textList):
+
+        for i in textList:
+            print(i)
 
         self.getBuilding(textList)
 
@@ -213,7 +216,7 @@ class Engine4:
             self.addrScore.append(cS)
 
             for dist in city.dists:
-                dist.score = city.score+dist.count+ DIST_NODE_SCORE
+                dist.score = city.score + dist.count + DIST_NODE_SCORE
 
                 distName = dist.name
                 dAddrStr = str(cityName) + " " + str(distName)
@@ -221,27 +224,40 @@ class Engine4:
 
                 if dist.end and self.ENABLE_HARD_SEARCH:
                     r = self.addressApi.wordSearch(dAddrStr)
-                    if r.resultCount > 0:
+                    resScore = 0
+                    resAddr = ""
+                    resAddrOld = ""
+                    resPos = 0
 
-                        a = StringUtil.similarity(r.word,r.addr[0])*SEARCH_SIMILARITY_MULTIPLE
-                        b = StringUtil.similarity(r.word,r.addrOld[0])*SEARCH_SIMILARITY_MULTIPLE
+                    for i in range (0,r.resultCount):
+                        lScore = 0
+                        a = StringUtil.similarity(r.word,r.addr[i])*SEARCH_SIMILARITY_MULTIPLE
+                        b = StringUtil.similarity(r.word,r.addrOld[i])*SEARCH_SIMILARITY_MULTIPLE
 
-                        # 특정 키워트 추가점수
-                        for i in SEARCH_BONUS_KEYWORD:
-                            if StringUtil.containsSubstring(r.addr[0],i) or StringUtil.containsSubstring(r.addrOld[0],i):
-                                dist.score += SEARCH_BONUS_SCORE
+                        # 특정 키워드 추가점수
+                        for j in SEARCH_BONUS_KEYWORD:
+                            if StringUtil.containsSubstring(r.addr[i],j) or StringUtil.containsSubstring(r.addrOld[i],j):
+                                lScore += SEARCH_BONUS_SCORE
 
                         if a>b:
-                            dist.score += a
+                            lScore = a
                         else:
-                            dist.score += b
+                            lScore = b
 
-                        dist.result = r.addr[0]
-                        dist.resultOld = r.addrOld[0]
-                        dist.postNum = r.postNum[0]
+                        if lScore > resScore:
+                            resScore = lScore
+                            resAddr = r.addr[i]
+                            resAddrOld = r.addrOld[i]
+                            resPos = r.postNum[i]
 
-                        dist.score += SEARCH_COMPLETE_SCORE
-                        pass
+                    dist.score += resScore
+                    dist.result = resAddr
+                    dist.resultOld = resAddrOld
+                    dist.postNum = resPos
+
+                    dist.score += SEARCH_COMPLETE_SCORE
+
+
                 dS = ScoreTable(dAddrStr,dist.score)
                 dS.result = dist.result
                 dS.resultOld = dist.resultOld
@@ -258,31 +274,44 @@ class Engine4:
 
                     if road.end and self.ENABLE_HARD_SEARCH:
                         r = self.addressApi.wordSearch(rAddrStr)
-                        if r.resultCount > 0:
+                        resScore = 0
+                        resAddr = ""
+                        resAddrOld = ""
+                        resPos = 0
 
-                            a = StringUtil.similarity(r.word,r.addr[0])*SEARCH_SIMILARITY_MULTIPLE
-                            b = StringUtil.similarity(r.word,r.addrOld[0])*SEARCH_SIMILARITY_MULTIPLE
+                        for i in range (0,r.resultCount):
+                            lScore = 0
+                            a = StringUtil.similarity(r.word,r.addr[i])*SEARCH_SIMILARITY_MULTIPLE
+                            b = StringUtil.similarity(r.word,r.addrOld[i])*SEARCH_SIMILARITY_MULTIPLE
+
+                            # 특정 키워드 추가점수
+                            for j in SEARCH_BONUS_KEYWORD:
+                                if StringUtil.containsSubstring(r.addr[i],j) or StringUtil.containsSubstring(r.addrOld[i],j):
+                                    lScore += SEARCH_BONUS_SCORE
+
                             if a>b:
-                                road.score += a
+                                lScore = a
                             else:
-                                road.score += b
+                                lScore = b
 
-                            # 특정 키워트 추가점수
-                            for i in SEARCH_BONUS_KEYWORD:
-                                if StringUtil.containsSubstring(r.addr[0],i) or StringUtil.containsSubstring(r.addrOld[0],i):
-                                    road.score += SEARCH_BONUS_SCORE
+                            if lScore > resScore:
+                                resScore = lScore
+                                resAddr = r.addr[i]
+                                resAddrOld = r.addrOld[i]
+                                resPos = r.postNum[i]
 
-                            road.result = r.addr[0]
-                            road.resultOld = r.addrOld[0]
-                            road.postNum = r.postNum[0]
+                        road.score += resScore
+                        road.result = resAddr
+                        road.resultOld = resAddrOld
+                        road.postNum = resPos
 
-                            road.score += SEARCH_COMPLETE_SCORE
-                            pass
+                        road.score += SEARCH_COMPLETE_SCORE
 
-                    rS = ScoreTable(rAddrStr,road.score)
-                    rS.result = road.result
-                    rS.resultOld = road.resultOld
-                    rS.postNum = road.postNum
+
+                    rS = ScoreTable(dAddrStr,dist.score)
+                    rS.result = dist.result
+                    rS.resultOld = dist.resultOld
+                    rS.postNum = dist.postNum
                     self.addrScore.append(rS)
 
                     for num in road.nums:
@@ -292,27 +321,38 @@ class Engine4:
                         num.score = city.score+dist.score+road.score+num.count + NUM_NODE_SCORE
                         nAddrStr = str(cityName) + " " + str(distName) + " " +str(roadName) +" " + num.name
                         r = self.addressApi.wordSearch(nAddrStr)
-                        if r.resultCount > 0:
+                        resScore = 0
+                        resAddr = ""
+                        resAddrOld = ""
+                        resPos = 0
 
-                            a = StringUtil.similarity(r.word,r.addr[0])*SEARCH_SIMILARITY_MULTIPLE
-                            b = StringUtil.similarity(r.word,r.addrOld[0])*SEARCH_SIMILARITY_MULTIPLE
+                        for i in range(0,r.resultCount):
+                            lScore = 0
+                            a = StringUtil.similarity(r.word,r.addr[i])*SEARCH_SIMILARITY_MULTIPLE
+                            b = StringUtil.similarity(r.word,r.addrOld[i])*SEARCH_SIMILARITY_MULTIPLE
 
-                            # 특정 키워트 추가점수
-                            for i in SEARCH_BONUS_KEYWORD:
-                                if StringUtil.containsSubstring(r.addr[0],i) or StringUtil.containsSubstring(r.addrOld[0],i):
-                                    num.score += SEARCH_BONUS_SCORE
+                            # 특정 키워드 추가점수
+                            for j in SEARCH_BONUS_KEYWORD:
+                                if StringUtil.containsSubstring(r.addr[i],j) or StringUtil.containsSubstring(r.addrOld[i],j):
+                                    lScore += SEARCH_BONUS_SCORE
 
                             if a>b:
-                                num.score += a
+                                lScore = a
                             else:
-                                num.score += b
+                                lScore = b
 
-                            num.result = r.addr[0]
-                            num.resultOld = r.addrOld[0]
-                            num.postNum = r.postNum[0]
+                            if lScore > resScore:
+                                resScore = lScore
+                                resAddr = r.addr[i]
+                                resAddrOld = r.addrOld[i]
+                                resPos = r.postNum[i]
 
-                            num.score += SEARCH_COMPLETE_SCORE
-                            pass
+                        num.score += resScore
+                        num.result = resAddr
+                        num.resultOld = resAddrOld
+                        num.postNum = resPos
+
+                        num.score += SEARCH_COMPLETE_SCORE
 
                         Log(TAG,"   " +"   " +"   " + nAddrStr+" Score : "+ str(num.score)+" S Result : "+str(num.result))
                         nS = ScoreTable(nAddrStr,num.score)

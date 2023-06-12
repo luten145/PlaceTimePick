@@ -27,8 +27,7 @@ class Engine2:
 
         text_list = str(text).split('\\n')
         text_str2 = str(text).replace("\\n","")
-        text_str3 = str(text_str2).replace(":","")
-        text_str = str(text_str3).replace(" ","")
+        text_str = str(text_str2).replace(" ","")
 
         print(text_list)
         print(text_str)
