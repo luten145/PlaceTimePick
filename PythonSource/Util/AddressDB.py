@@ -30,12 +30,12 @@ c.close()
 class AddressDB:
 
     def __init__(self):
-        self.RoadAddressList=RoadAddressL
-        self.OldAddressList=OldAddressL
+        self.RoadAddressList = RoadAddressL
+        self.OldAddressList = OldAddressL
         pass
 
 
-    def getAdressList(self,Find=0, AddressNum=1, AddressGet=1,Type=0):
+    def getAddressList(self, Find=0, AddressNum=1, AddressGet=1, Type=0):
         if Type == ROAD_ADDRESS:
             l = self.SearchAddress(self.RoadAddressList,Type,Find,AddressNum,AddressGet)
         elif Type == OLD_ADDRESS:
