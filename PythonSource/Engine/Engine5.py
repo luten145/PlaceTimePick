@@ -1,5 +1,3 @@
-
-
 class Engine5:
 
     placePattern = ["홀", "웨딩", "장례"]
