@@ -57,3 +57,6 @@ def extractNumbers(text):
 
 def getTextList(raw):  # Json text to textlist
     return str(["".join(raw["task_result"]["text"])]).split('\\n')
+
+def getTextString(raw):  # Json text to text string (Line split remove)
+    return str(["".join(raw["task_result"]["text"])]).replace('\\n',"").replace(" ","")

@@ -5,16 +5,16 @@ from PythonSource.Util import AddressDB
 from PythonSource.Util import StringUtil
 from PythonSource.Util import AddressApi
 
-PLACE_KEYWORD = ["홀", "웨딩", "장례", "병원", "층"]
+PLACE_KEYWORD = ["홀", "웨딩", "장례", "병원", "층"] # 장소 키워드
 
-CITY_NODE_SCORE = 8
-DIST_NODE_SCORE = 8
-ROAD_NODE_SCORE = 8
-NUM_NODE_SCORE = 8
-SEARCH_BONUS_KEYWORD = ["홀", "웨딩", "장례", "병원","호텔"]
-SEARCH_BONUS_SCORE = 50
-SEARCH_COMPLETE_SCORE = 16
-SEARCH_SIMILARITY_MULTIPLE = 100
+CITY_NODE_SCORE = 8  # 시 노드 기본점수
+DIST_NODE_SCORE = 8  # 시,군,구 노드 기본점수
+ROAD_NODE_SCORE = 8  # 도로명(지번) 노드 기본점수
+NUM_NODE_SCORE = 8  # 숫자 노드 기본점수
+SEARCH_BONUS_KEYWORD = ["홀", "웨딩", "장례", "병원","호텔"]  # API 검색결과 추가점수 키워드
+SEARCH_BONUS_SCORE = 50  # 검색결과 추가점수
+SEARCH_COMPLETE_SCORE = 16  # 검색 결과 기본점수
+SEARCH_SIMILARITY_MULTIPLE = 100  # 노드주소 : 검색결과 유사도(0.0 ~ 1.0) 점수 가중치
 
 class Address:
     def __init__(self,name,count):
@@ -31,7 +31,7 @@ class Address:
     def addNode(self,node):
         self.nodes.append(node)
 
-    def getTree(self) -> []:
+    def getTree(self) -> []:  # 트리의 루트 노드를 반환합니다.
         return self.nodes
 
 
@@ -42,8 +42,8 @@ class Window:
         self.count = count
 
 
-class ScoreTable():
-    def __init__(self,address,score,road = "",old ="",postNum = ""):
+class ScoreTable:
+    def __init__(self, address, score, road = "", old ="", postNum = ""):
         self.address = address
         self.score = score
         self.result = road
@@ -69,6 +69,7 @@ class Engine4:
         self.tree = Address("root",1)
         self.addressDB = AddressDB.AddressDB()
         self.addrScore = []
+
         self.additionalList = Address("Additional", 1)
         self.addressApi = AddressApi.AddressApi()
         self.ENABLE_HARD_SEARCH = False
